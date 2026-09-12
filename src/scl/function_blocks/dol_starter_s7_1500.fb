@@ -1,0 +1,221 @@
+FUNCTION_BLOCK FB DOL_Starter_S7_1500
+{ S7_Optimized_Access := 'TRUE' }
+VAR_INPUT
+    // Digital inputs
+    bStart_PB : BOOL;         // Start push button (NO)
+    bStop_PB : BOOL;          // Stop push button (NC - active when pressed)
+    bOverload : BOOL;         // Overload relay contact (NC - active when tripped)
+    bAux_Contact : BOOL;      // Contactor auxiliary feedback (NO)
+    
+    // S7-1500 specific inputs
+    bEmergency_Stop : BOOL;   // Emergency stop (safety input)
+    bSafety_Interlock : BOOL; // Safety interlock (safety input)
+    bMaintenance_Mode : BOOL; // Maintenance mode enable
+    bRemote_Enable : BOOL;    // Remote operation enable
+END_VAR
+
+VAR_OUTPUT
+    // Digital outputs
+    bContactor : BOOL;        // Contactor coil output
+    bRunning_Ind : BOOL;      // Motor running indicator
+    bFault_Ind : BOOL;        // Fault indicator
+    bReady_Ind : BOOL;        // Ready status indicator
+    
+    // S7-1500 specific outputs
+    bWarning_Ind : BOOL;      // Warning indicator
+    bMaintenance_Ind : BOOL;   // Maintenance indicator
+    bRemote_Status : BOOL;    // Remote operation status
+END_VAR
+
+VAR
+    // Internal variables
+    bLatching : BOOL;         // Latching signal
+    bFault_Memory : BOOL;     // Fault memory (requires reset)
+    bStart_Memory : BOOL;     // Start command memory
+    bStop_Memory : BOOL;      // Stop command memory
+    bWarning_Condition : BOOL; // Warning condition
+    bStart_Command : BOOL;    // Validated start command
+    bStop_Command : BOOL;     // Validated stop command
+    
+    // S7-1500 advanced timers
+    tStart_Delay : TON;       // Start delay timer
+    tFault_Delay : TON;       // Fault delay timer
+    tWarning_Delay : TON;     // Warning delay timer
+    tStartup_Delay : TON;     // Startup delay timer
+    
+    // S7-1500 specific features
+    iStart_Count : DINT;      // Start counter (32-bit)
+    iFault_Count : DINT;       // Fault counter (32-bit)
+    rOperating_Hours : REAL;   // Operating hours (floating point)
+    dtLast_Start : DT;        // Last start timestamp
+    dtLast_Fault : DT;        // Last fault timestamp
+    dtLast_Maintenance : DT;  // Last maintenance timestamp
+    
+    // S7-1500 diagnostic data
+    bContactor_Fault : BOOL;  // Contactor fault detected
+    bWiring_Fault : BOOL;     // Wiring fault detected
+    bSensor_Fault : BOOL;     // Sensor fault detected
+END_VAR
+
+BEGIN
+    // ==========================================
+    // S7-1500 Optimized Input Processing
+    // ==========================================
+    
+    // Edge detection with optimized access
+    // Rising edge detection for start button
+    IF bStart_PB AND NOT bStart_Memory THEN
+        bStart_Memory := TRUE;
+    ELSIF NOT bStart_PB THEN
+        bStart_Memory := FALSE;
+    END_IF;
+    
+    // Rising edge detection for stop button (inverted)
+    IF bStop_PB AND NOT bStop_Memory THEN
+        bStop_Memory := TRUE;
+    ELSIF NOT bStop_PB THEN
+        bStop_Memory := FALSE;
+    END_IF;
+    
+    // ==========================================
+    // S7-1500 Safety Integration
+    // ==========================================
+    
+    // Emergency stop handling (priority 1)
+    IF bEmergency_Stop THEN
+        bContactor := FALSE;
+        bFault_Memory := TRUE;
+        bRunning_Ind := FALSE;
+        bWarning_Condition := TRUE;
+        dtLast_Fault := CURRENT_DT;
+        RETURN; // Immediate exit on emergency stop
+    END_IF;
+    
+    // Safety interlock handling (priority 2)
+    IF bSafety_Interlock THEN
+        bContactor := FALSE;
+        bFault_Memory := TRUE;
+        bRunning_Ind := FALSE;
+        RETURN; // Immediate exit on safety interlock
+    END_IF;
+    
+    // ==========================================
+    // Command Validation
+    // ==========================================
+    
+    // Validate start command
+    bStart_Command := bStart_PB AND NOT bStop_PB AND NOT bOverload AND 
+                      NOT bFault_Memory AND NOT bEmergency_Stop AND NOT bSafety_Interlock;
+    
+    // Validate stop command
+    bStop_Command := bStop_PB OR bOverload OR bFault_Memory;
+    
+    // ==========================================
+    // S7-1500 Advanced Control Logic
+    // ==========================================
+    
+    // Main control circuit with enhanced safety
+    IF bStart_Command AND bRemote_Enable THEN
+        bLatching := TRUE;
+        iStart_Count := iStart_Count + 1;
+        dtLast_Start := CURRENT_DT;
+    END_IF;
+    
+    IF bStop_Command THEN
+        bLatching := FALSE;
+    END_IF;
+    
+    // Fault memory setting with enhanced detection
+    IF bOverload OR bContactor_Fault OR bWiring_Fault OR bSensor_Fault THEN
+        bFault_Memory := TRUE;
+        iFault_Count := iFault_Count + 1;
+        dtLast_Fault := CURRENT_DT;
+    END_IF;
+    
+    // ==========================================
+    // S7-1500 Enhanced Contactor Control
+    // ==========================================
+    
+    // Startup delay for smooth starting
+    tStartup_Delay(IN := bLatching, PT := T#200MS);
+    
+    // Start delay with optimized timing
+    tStart_Delay(IN := tStartup_Delay.Q, PT := T#100MS);
+    
+    // Contactor output with safety conditions
+    bContactor := tStart_Delay.Q AND NOT bFault_Memory AND 
+                  NOT bEmergency_Stop AND NOT bSafety_Interlock;
+    
+    // ==========================================
+    // S7-1500 Advanced Diagnostics
+    // ==========================================
+    
+    // Contactor feedback monitoring (S7-1500 specific)
+    IF bContactor AND NOT bAux_Contact THEN
+        tFault_Delay(IN := TRUE, PT := T#500MS);
+        IF tFault_Delay.Q THEN
+            bContactor_Fault := TRUE;
+            bFault_Memory := TRUE;
+        END_IF;
+    ELSE
+        tFault_Delay(IN := FALSE);
+        bContactor_Fault := FALSE;
+    END_IF;
+    
+    // Wiring fault detection
+    IF bStart_PB AND bStop_PB THEN
+        bWiring_Fault := TRUE;
+        bFault_Memory := TRUE;
+    ELSE
+        bWiring_Fault := FALSE;
+    END_IF;
+    
+    // ==========================================
+    // S7-1500 Enhanced Status Indication
+    // ==========================================
+    
+    // Running indicator with feedback verification
+    bRunning_Ind := bContactor AND bAux_Contact AND NOT bFault_Memory;
+    
+    // Fault indicator with multiple fault sources
+    bFault_Ind := bFault_Memory OR bOverload OR bContactor_Fault OR 
+                  bWiring_Fault OR bSensor_Fault;
+    
+    // Ready indicator with comprehensive conditions
+    bReady_Ind := NOT bStop_PB AND NOT bOverload AND NOT bFault_Memory AND 
+                  NOT bContactor AND NOT bEmergency_Stop AND NOT bSafety_Interlock;
+    
+    // Warning indicator for predictive maintenance
+    tWarning_Delay(IN := (iStart_Count > 10000) OR (rOperating_Hours > 10000.0), 
+                   PT := T#5S);
+    bWarning_Ind := tWarning_Delay.Q OR bWarning_Condition;
+    
+    // Maintenance indicator
+    bMaintenance_Ind := bMaintenance_Mode;
+    
+    // Remote status indicator
+    bRemote_Status := bRemote_Enable;
+    
+    // ==========================================
+    // S7-1500 Operating Hours Calculation
+    // ==========================================
+    
+    // Calculate operating hours (increment every cycle when running)
+    IF bRunning_Ind THEN
+        rOperating_Hours := rOperating_Hours + 0.0001; // Approximate per cycle
+    END_IF;
+    
+    // ==========================================
+    // S7-1500 Enhanced Fault Reset
+    // ==========================================
+    
+    // Enhanced fault reset with safety conditions
+    IF NOT bOverload AND NOT bContactor_Fault AND NOT bWiring_Fault AND 
+       NOT bSensor_Fault AND NOT bContactor AND bStop_PB AND bMaintenance_Mode THEN
+        // Fault can be reset in maintenance mode
+        bFault_Memory := FALSE;
+        bWarning_Condition := FALSE;
+        dtLast_Maintenance := CURRENT_DT;
+    END_IF;
+    
+END_FUNCTION_BLOCK

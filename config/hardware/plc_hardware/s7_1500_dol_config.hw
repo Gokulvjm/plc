@@ -1,0 +1,263 @@
+# S7-1500 DOL Starter Hardware Configuration
+
+## CPU Selection - Optimized for DOL Starter Control
+
+### Recommended CPU: S7-1516F-3 PN/DP
+**Order Number:** 6ES7 516-3FN00-0AB0 (with Safety Integrated)
+
+**Selection Rationale:**
+- High performance for motor control applications
+- Safety Integrated for emergency stop integration
+- PROFINET for HMI/SCADA connectivity
+- Sufficient I/O capacity for multiple DOL starters
+- Advanced diagnostic capabilities
+
+**Alternative CPUs:**
+- **S7-1511C-1 PN:** Compact, budget-friendly option
+- **S7-1513-1 PN:** Mid-range, good for single DOL starter
+- **S7-1516-3 PN/DP:** High-performance, non-safety version
+- **S7-1518-4 PN/DP:** Maximum performance for multiple motors
+
+## Rack Configuration for DOL Starter
+
+### Rack 0 (Main Rack)
+| Slot | Module | Order Number | Firmware | Purpose |
+|------|--------|--------------|----------|---------|
+| 0 | PS 307 5A | 6ES7 307-1EA00-0AA0 | - | Power Supply |
+| 1 | CPU 1516F-3 PN/DP | 6ES7 516-3FN00-0AB0 | V2.8 | Main CPU with Safety |
+| 2 | SM 1231 DI 16x24VDC | 6ES7 231-4BH32-0XB0 | V2.5 | DOL Inputs + Test Inputs |
+| 3 | SM 1232 DQ 16x24VDC | 6ES7 232-4HB32-0XB0 | V2.5 | DOL Outputs + Test Outputs |
+| 4 | SM 1231 AI 4x13bit | 6ES7 231-4HF32-0XB0 | V2.5 | Analog Inputs (optional) |
+| 5 | SM 1232 AO 2x13bit | 6ES7 232-4HB32-0XB0 | V2.5 | Analog Outputs (optional) |
+| 6 | CM 1241 RS485 | 6ES7 241-1CH32-0XB0 | V2.5 | Communication (optional) |
+| 7 | Empty | - | - | Reserved for expansion |
+
+## I/O Address Assignment for DOL Starter
+
+### Digital Inputs (SM 1231 DI 16x24VDC, Slot 2)
+| Address | Tag Name | Function | DOL Starter # |
+|---------|----------|----------|---------------|
+| %I0.0 | DI_DOL_Start_PB | Start button | 1 |
+| %I0.1 | DI_DOL_Stop_PB | Stop button | 1 |
+| %I0.2 | DI_DOL_Overload | Overload relay | 1 |
+| %I0.3 | DI_DOL_Aux_Contact | Auxiliary contact | 1 |
+| %I0.4 | DI_DOL_Start_PB_2 | Start button | 2 (optional) |
+| %I0.5 | DI_DOL_Stop_PB_2 | Stop button | 2 (optional) |
+| %I0.6 | DI_DOL_Overload_2 | Overload relay | 2 (optional) |
+| %I0.7 | DI_DOL_Aux_Contact_2 | Auxiliary contact | 2 (optional) |
+| %I1.0 | DI_Test_Start_PB | Test start button | Test |
+| %I1.1 | DI_Test_Stop_PB | Test stop button | Test |
+| %I1.2 | DI_Test_Overload | Test overload | Test |
+| %I1.3 | DI_Test_Contactor_FB | Test contactor FB | Test |
+| %I1.4 | DI_Test_Mode_Enable | Test mode enable | Test |
+| %I1.5 | DI_Manual_Contactor_Test | Manual test | Test |
+| %I1.6 | DI_Reset_Test | Reset test | Test |
+| %I1.7 | Reserved | - | - |
+
+### Digital Outputs (SM 1232 DQ 16x24VDC, Slot 3)
+| Address | Tag Name | Function | DOL Starter # |
+|---------|----------|----------|---------------|
+| %Q0.0 | DQ_DOL_Contactor | Contactor coil | 1 |
+| %Q0.1 | DQ_DOL_Running_Ind | Running indicator | 1 |
+| %Q0.2 | DQ_DOL_Fault_Ind | Fault indicator | 1 |
+| %Q0.3 | DQ_DOL_Ready_Ind | Ready indicator | 1 |
+| %Q0.4 | DQ_DOL_Contactor_2 | Contactor coil | 2 (optional) |
+| %Q0.5 | DQ_DOL_Running_Ind_2 | Running indicator | 2 (optional) |
+| %Q0.6 | DQ_DOL_Fault_Ind_2 | Fault indicator | 2 (optional) |
+| %Q0.7 | DQ_DOL_Ready_Ind_2 | Ready indicator | 2 (optional) |
+| %Q1.0 | DQ_Sim_Start_PB | Simulated start | Test |
+| %Q1.1 | DQ_Sim_Stop_PB | Simulated stop | Test |
+| %Q1.2 | DQ_Sim_Overload | Simulated overload | Test |
+| %Q1.3 | DQ_Sim_Aux_Contact | Simulated aux contact | Test |
+| %Q1.4 | DQ_Test_Mode_Active | Test mode indicator | Test |
+| %Q1.5 | DQ_Test_Contactor_Out | Manual test output | Test |
+| %Q1.6 | DQ_Running_Verified | Running verified | Test |
+| %Q1.7 | DQ_Fault_Verified | Fault verified | Test |
+
+### Analog Inputs (SM 1231 AI 4x13bit, Slot 4) - Optional
+| Address | Tag Name | Function | Range |
+|---------|----------|----------|-------|
+| %IW256 | AI_Motor_Current | Motor current monitoring | 0-20mA |
+| %IW258 | AI_Motor_Temperature | Motor temperature | 0-10V |
+| %IW260 | AI_Voltage_Monitoring | Voltage monitoring | 0-10V |
+| %IW262 | Reserved | - | - |
+
+### Analog Outputs (SM 1232 AO 2x13bit, Slot 5) - Optional
+| Address | Tag Name | Function | Range |
+|---------|----------|----------|-------|
+| %QW256 | AQ_Speed_Reference | Speed reference (if VFD) | 0-10V |
+| %QW258 | Reserved | - | - |
+
+## CPU Configuration Specifics
+
+### PROFINET Interface X1
+- **IP Address:** 192.168.0.10
+- **Subnet Mask:** 255.255.255.0
+- **Default Gateway:** 192.168.0.1
+- **PROFINET Device Name:** S7_1500_DOL_Control
+- **Device ID:** 0x0001
+
+### MPI/DP Interface X2 (if used)
+- **MPI Address:** 2
+- **DP Master:** Yes
+- **Baud Rate:** 12 Mbps
+- **Highest DP Address:** 126
+
+## S7-1500 Specific Features for DOL Starter
+
+### Advanced Diagnostics
+- **Channel-level diagnostics:** Enable for all I/O modules
+- **Diagnostic alarms:** Configure for overload, wire break, short circuit
+- **Maintenance alerts:** Predictive maintenance for contactors
+
+### Safety Integration (if using F-CPU)
+- **Emergency Stop:** F-input for emergency stop
+- **Safety Interlock:** F-input for safety interlock
+- **F-Contactor:** F-output for safety-related contactor
+- **Safety Response Time:** < 50ms
+
+### Technology Objects
+- **Motor Control:** Use technology objects for advanced motor control
+- **PID Control:** For process control applications
+- **Positioning:** For positioning applications (if applicable)
+
+### Web Server
+- **Enable Web Server:** For remote monitoring
+- **User Management:** Configure access levels
+- **Web Pages:** Custom pages for DOL starter status
+
+## System Addresses Summary
+
+### Memory Areas
+- **Digital Inputs:** %I0.0 - %I1.7 (32 points)
+- **Digital Outputs:** %Q0.0 - %Q1.7 (32 points)
+- **Analog Inputs:** %IW256 - %IW262 (4 channels)
+- **Analog Outputs:** %QW256 - %QW258 (2 channels)
+- **Merker Bits:** %M0.0 - %M1023.7 (1024 bits)
+- **Timers:** T0 - T255 (256 timers)
+- **Counters:** C0 - C255 (256 counters)
+
+### Data Blocks
+- **Shared DBs:** DB1 - DB100 (for global data)
+- **Instance DBs:** DB101 - DB200 (for function block instances)
+- **System DBs:** DB201+ (for system functions)
+
+## CPU Performance Optimization
+
+### Cycle Time Configuration
+- **Minimum Cycle Time:** 1 ms
+- **Maximum Cycle Time:** 50 ms
+- **Current Cycle Time:** ~10 ms (typical for DOL starter)
+- **Watchdog Time:** 5000 ms
+
+### Interrupt Configuration
+- **Hardware Interrupts:** Configure for digital input changes
+- **Diagnostic Interrupts:** Enable for I/O module diagnostics
+- **Time-of-Day Interrupts:** For scheduled maintenance
+
+### Memory Optimization
+- **Block Compression:** Enable for reduced memory usage
+- **Optimize Block Access:** Enable for faster execution
+- **Retentive Memory:** Configure for critical data retention
+
+## Communication Configuration
+
+### PROFINET IO Devices
+- **HMI Device:** Add HMI station (if applicable)
+- **I/O Devices:** Add remote I/O (if applicable)
+- **Update Rate:** 1 ms for fast response
+- **Watchdog Time:** 100 ms
+
+### OPC UA (Optional)
+- **Enable OPC UA:** For SCADA integration
+- **Security:** Configure certificates and encryption
+- **Data Access:** Expose DOL starter tags
+
+### Modbus TCP (Optional)
+- **Enable Modbus TCP:** For legacy equipment integration
+- **Port:** 502 (default)
+- **Data Mapping:** Configure register mapping
+
+## Redundancy (Optional)
+- **S7-1500R:** For high availability applications
+- **Redundant CPUs:** Configure standby system
+- **Synchronization:** Configure H-system synchronization
+
+## Security Configuration
+
+### Access Protection
+- **Know-how Protection:** Enable to protect logic
+- **Copy Protection:** Enable to bind to specific hardware
+- **Access Level:** Full (for development), Read-only (for operation)
+
+### Security Integrated
+- **Safety Password:** Configure for safety-related functions
+- **Safety Signature:** Configure for safety program integrity
+- **F-Parameters:** Configure safety-related parameters
+
+## Backup and Restore
+- **Memory Card:** 4 GB SIMATIC Memory Card
+- **Backup Frequency:** Weekly
+- **Auto Backup:** Enable
+- **Restore on Power Loss:** Disable (manual restore)
+
+## TIA Portal Project Settings
+
+### General Settings
+- **Project Name:** S7_1500_DOL_Starter
+- **Project Type:** Station with PLC
+- **Language:** English (US)
+- **Character Set:** ISO 8859-1
+
+### PLC Settings
+- **CPU Type:** S7-1516F-3 PN/DP
+- **Firmware:** V2.8
+- **Program Blocks:** SCL, LAD, FBD
+- **Data Types:** Standard + UDTs
+
+### Compilation Settings
+- **Optimization:** Speed
+- **Block Checks:** Enable all
+- **Consistency Check:** Enable
+- **Auto-compile:** Enable
+
+## Testing and Commissioning
+
+### PLCSIM Configuration
+- **PLCSIM Advanced:** For advanced simulation
+- **Virtual Hardware:** Configure matching modules
+- **Signal Tables:** For signal simulation
+- **Force Variables:** For testing
+
+### Commissioning Checklist
+- [ ] Verify hardware configuration matches physical setup
+- [ ] Test all digital inputs
+- [ ] Test all digital outputs
+- [ ] Verify PROFINET communication
+- [ ] Test emergency stop (if applicable)
+- [ ] Test overload protection
+- [ ] Verify all status indicators
+- [ ] Test HMI communication (if applicable)
+- [ ] Verify diagnostic alarms
+- [ ] Document all settings
+
+## Maintenance Considerations
+
+### Predictive Maintenance
+- **Contactor Operation Count:** Monitor for maintenance scheduling
+- **Overload Trip Count:** Track for trend analysis
+- **Operating Hours:** Log for maintenance planning
+- **Temperature Monitoring:** For thermal management
+
+### Spare Parts
+- **CPU Spare:** Keep one spare CPU programmed
+- **I/O Module Spares:** Keep spare digital and analog modules
+- **Memory Card:** Keep backup memory card
+- **Documentation:** Keep configuration documentation
+
+## Documentation Requirements
+- **Hardware Configuration:** Document all module assignments
+- **I/O Lists:** Maintain current I/O assignment lists
+- **Network Configuration:** Document IP addresses and device names
+- **Safety Documentation:** Document safety-related configurations
+- **Maintenance Records:** Keep maintenance and modification records

@@ -1,0 +1,112 @@
+FUNCTION_BLOCK FB DOL_Starter
+VAR_INPUT
+    // Digital inputs
+    bStart_PB : BOOL;         // Start push button (NO)
+    bStop_PB : BOOL;          // Stop push button (NC - active when pressed)
+    bOverload : BOOL;         // Overload relay contact (NC - active when tripped)
+    bAux_Contact : BOOL;      // Contactor auxiliary feedback (NO)
+END_VAR
+
+VAR_OUTPUT
+    // Digital outputs
+    bContactor : BOOL;        // Contactor coil output
+    bRunning_Ind : BOOL;      // Motor running indicator
+    bFault_Ind : BOOL;        // Fault indicator
+    bReady_Ind : BOOL;        // Ready status indicator
+END_VAR
+
+VAR
+    // Internal variables
+    bLatching : BOOL;         // Latching signal
+    bFault_Memory : BOOL;     // Fault memory (requires reset)
+    bStart_Memory : BOOL;     // Start command memory
+    bStop_Memory : BOOL;      // Stop command memory
+    tStart_Delay : TON;       // Start delay timer
+    tFault_Delay : TON;       // Fault delay timer
+END_VAR
+
+BEGIN
+    // ==========================================
+    // DOL Starter Main Control Logic
+    // ==========================================
+    
+    // Input signal conditioning with debouncing
+    // Rising edge detection for start button
+    IF bStart_PB AND NOT bStart_Memory THEN
+        bStart_Memory := TRUE;
+    ELSIF NOT bStart_PB THEN
+        bStart_Memory := FALSE;
+    END_IF;
+    
+    // Rising edge detection for stop button (inverted - active when pressed)
+    IF bStop_PB AND NOT bStop_Memory THEN
+        bStop_Memory := TRUE;
+    ELSIF NOT bStop_PB THEN
+        bStop_Memory := FALSE;
+    END_IF;
+    
+    // ==========================================
+    // Main Control Circuit (Network 1 equivalent)
+    // ==========================================
+    
+    // Start condition: Start button pressed AND no stop AND no overload AND no fault
+    IF bStart_PB AND NOT bStop_PB AND NOT bOverload AND NOT bFault_Memory THEN
+        bLatching := TRUE;
+    END_IF;
+    
+    // Stop conditions: Stop button pressed OR overload OR fault
+    IF bStop_PB OR bOverload OR bFault_Memory THEN
+        bLatching := FALSE;
+    END_IF;
+    
+    // Fault memory setting (latches fault condition)
+    IF bOverload THEN
+        bFault_Memory := TRUE;
+    END_IF;
+    
+    // ==========================================
+    // Contactor Control
+    // ==========================================
+    
+    // Contactor output with latching
+    // Start delay for smooth starting (optional)
+    tStart_Delay(IN := bLatching, PT := T#100MS);
+    
+    bContactor := tStart_Delay.Q AND NOT bFault_Memory;
+    
+    // ==========================================
+    // Status Indication (Networks 2-4 equivalent)
+    // ==========================================
+    
+    // Running indicator (Network 2)
+    bRunning_Ind := bContactor AND bAux_Contact;
+    
+    // Fault indicator (Network 3)
+    bFault_Ind := bFault_Memory OR bOverload;
+    
+    // Ready indicator (Network 4)
+    bReady_Ind := NOT bStop_PB AND NOT bOverload AND NOT bFault_Memory AND NOT bContactor;
+    
+    // ==========================================
+    // Additional Safety Features
+    // ==========================================
+    
+    // Contactor feedback monitoring
+    // If contactor output is ON but auxiliary feedback is OFF, indicate fault
+    IF bContactor AND NOT bAux_Contact THEN
+        tFault_Delay(IN := TRUE, PT := T#500MS);
+        IF tFault_Delay.Q THEN
+            bFault_Memory := TRUE; // Contactor fault
+        END_IF;
+    ELSE
+        tFault_Delay(IN := FALSE);
+    END_IF;
+    
+    // Auto-reset fault memory when conditions are safe
+    // (Optional - remove if manual reset is preferred)
+    IF NOT bOverload AND NOT bContactor AND bStop_PB THEN
+        // Fault can be reset by pressing stop button when safe
+        bFault_Memory := FALSE;
+    END_IF;
+    
+END_FUNCTION_BLOCK

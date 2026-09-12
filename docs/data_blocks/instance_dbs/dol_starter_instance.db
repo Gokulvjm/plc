@@ -1,0 +1,145 @@
+# Instance Data Block: DOL_Starter_Instance
+
+## Data Block Overview
+This instance data block provides the memory and interface for the DOL_Starter function block.
+
+## Instance Declaration
+```scl
+// In your main program or organization block:
+VAR
+    // DOL Starter Instance
+    FB_DOL_Starter_1 : FB DOL_Starter;
+END_VAR
+```
+
+## Memory Map
+| Variable | Offset | Type | Description |
+|----------|--------|------|-------------|
+| **Inputs** | | | |
+| bStart_PB | +0 | BOOL | Start push button input |
+| bStop_PB | +0.1 | BOOL | Stop push button input |
+| bOverload | +0.2 | BOOL | Overload relay input |
+| bAux_Contact | +0.3 | BOOL | Auxiliary contact feedback |
+| **Outputs** | | | |
+| bContactor | +2.0 | BOOL | Contactor coil output |
+| bRunning_Ind | +2.1 | BOOL | Running indicator output |
+| bFault_Ind | +2.2 | BOOL | Fault indicator output |
+| bReady_Ind | +2.3 | BOOL | Ready indicator output |
+| **Static Variables** | | | |
+| bLatching | +4.0 | BOOL | Latching signal |
+| bFault_Memory | +4.1 | BOOL | Fault memory |
+| bStart_Memory | +4.2 | BOOL | Start command memory |
+| bStop_Memory | +4.3 | BOOL | Stop command memory |
+| tStart_Delay | +6.0 | TON | Start delay timer |
+| tFault_Delay | +10.0 | TON | Fault delay timer |
+
+## Total Memory Requirements
+- Input variables: 4 bytes
+- Output variables: 4 bytes  
+- Static variables: 16 bytes
+- **Total: 24 bytes**
+
+## Usage Example
+```scl
+// In Main OB:
+// Connect physical I/O to function block
+FB_DOL_Starter_1.bStart_PB := %I0.0;      // Start PB
+FB_DOL_Starter_1.bStop_PB := %I0.1;       // Stop PB
+FB_DOL_Starter_1.bOverload := %I0.2;     // Overload
+FB_DOL_Starter_1.bAux_Contact := %I0.3;  // Aux feedback
+
+// Call the function block
+FB_DOL_Starter_1();
+
+// Connect outputs to physical I/O
+%Q0.0 := FB_DOL_Starter_1.bContactor;   // Contactor
+%Q0.1 := FB_DOL_Starter_1.bRunning_Ind; // Running LED
+%Q0.2 := FB_DOL_Starter_1.bFault_Ind;   // Fault LED
+%Q0.3 := FB_DOL_Starter_1.bReady_Ind;   // Ready LED
+```
+
+## TIA Portal Implementation Steps
+
+### 1. Create Function Block
+1. Open TIA Portal Project4
+2. In Project tree, navigate to PLC → Program blocks
+3. Right-click → Add new block
+4. Select "Function block (FB)"
+5. Name: `DOL_Starter`
+6. Number: FB1 (or next available)
+7. Language: SCL
+8. Copy the SCL code from `dol_starter.fb`
+
+### 2. Create Instance Data Block
+1. Right-click on Function blocks → Add new block
+2. Select "Data block (DB)"
+3. Name: `DOL_Starter_Instance`
+4. Type: `FB DOL_Starter`
+5. Number: DB1 (or next available)
+
+### 3. Configure Hardware I/O
+1. Open Hardware configuration
+2. Assign digital inputs:
+   - %I0.0: Start push button
+   - %I0.1: Stop push button  
+   - %I0.2: Overload relay
+   - %I0.3: Auxiliary contact
+3. Assign digital outputs:
+   - %Q0.0: Contactor coil
+   - %Q0.1: Running indicator
+   - %Q0.2: Fault indicator
+   - %Q0.3: Ready indicator
+
+### 4. Integrate in Main Program
+1. Open Main OB (OB1)
+2. Add the function block call
+3. Connect I/O as shown in usage example
+4. Compile and check for errors
+
+### 5. Test and Commission
+1. Download to PLC or PLCSIM
+2. Test start/stop functionality
+3. Verify overload protection
+4. Check all status indicators
+5. Test fault conditions
+
+## Multiple Motor Control
+For multiple DOL starters, create additional instances:
+```scl
+VAR
+    FB_DOL_Starter_1 : FB DOL_Starter;
+    FB_DOL_Starter_2 : FB DOL_Starter;
+    FB_DOL_Starter_3 : FB DOL_Starter;
+END_VAR
+
+// Call each instance with different I/O
+FB_DOL_Starter_1.bStart_PB := %I0.0;
+FB_DOL_Starter_2.bStart_PB := %I1.0;
+FB_DOL_Starter_3.bStart_PB := %I2.0;
+
+FB_DOL_Starter_1();
+FB_DOL_Starter_2();
+FB_DOL_Starter_3();
+```
+
+## HMI Integration
+Tags can be exported for HMI/SCADA:
+- DOL_Start_PB
+- DOL_Stop_PB
+- DOL_Overload
+- DOL_Contactor
+- DOL_Running
+- DOL_Fault
+- DOL_Ready
+
+## Alarm Configuration
+Configure alarms in TIA Portal:
+- **DOL_Overload_Alarm**: Triggered by overload input
+- **DOL_Contactor_Fault**: Triggered by contactor feedback mismatch
+- **DOL_Fault_Alarm**: General fault condition
+
+## Safety Considerations
+- Ensure emergency stop is hardwired (not through PLC)
+- Verify normally closed contacts for safety functions
+- Test all safety functions before commissioning
+- Follow local electrical codes and standards

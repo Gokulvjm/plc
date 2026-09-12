@@ -1,0 +1,95 @@
+# DOL Starter I/O Tags Configuration
+
+## Digital Inputs (Module: DI_16x24VDC, Address: 0)
+| Tag Name | Address | Data Type | Description | Comment |
+|----------|---------|-----------|-------------|---------|
+| DI_DOL_Start_PB | %I0.0 | BOOL | DOL Start push button | Normally Open, momentary |
+| DI_DOL_Stop_PB | %I0.1 | BOOL | DOL Stop push button | Normally Closed, momentary |
+| DI_DOL_Overload | %I0.2 | BOOL | Overload relay contact | Normally Closed, opens on trip |
+| DI_DOL_Aux_Contact | %I0.3 | BOOL | Contactor auxiliary feedback | Normally Open, closed when energized |
+
+## Digital Outputs (Module: DQ_16x24VDC, Address: 0)
+| Tag Name | Address | Data Type | Description | Comment |
+|----------|---------|-----------|-------------|---------|
+| DQ_DOL_Contactor | %Q0.0 | BOOL | Contactor coil output | Main contactor control |
+| DQ_DOL_Running_Ind | %Q0.1 | BOOL | Motor running indicator | Green LED, HMI tag |
+| DQ_DOL_Fault_Ind | %Q0.2 | BOOL | Fault indicator | Red LED, HMI tag |
+| DQ_DOL_Ready_Ind | %Q0.3 | BOOL | Ready status indicator | Yellow LED, HMI tag |
+
+## HMI/SCADA Tags
+| Tag Name | Data Type | Description | Access |
+|----------|-----------|-------------|--------|
+| DOL_Start_Command | BOOL | HMI start button | Read/Write |
+| DOL_Stop_Command | BOOL | HMI stop button | Read/Write |
+| DOL_Motor_Status | BOOL | Motor running status | Read Only |
+| DOL_Fault_Status | BOOL | Fault condition | Read Only |
+| DOL_Ready_Status | BOOL | System ready | Read Only |
+| DOL_Overload_Status | BOOL | Overload condition | Read Only |
+| DOL_Start_Count | DINT | Number of motor starts | Read Only |
+| DOL_Run_Time | TIME | Total run time | Read Only |
+
+## Tag Symbolic Names (TIA Portal)
+For easier programming, use symbolic names:
+
+### Input Symbols
+```
+"DOL_Start_PB" : %I0.0
+"DOL_Stop_PB" : %I0.1  
+"DOL_Overload" : %I0.2
+"DOL_Aux_Contact" : %I0.3
+```
+
+### Output Symbols
+```
+"DOL_Contactor" : %Q0.0
+"DOL_Running_Ind" : %Q0.1
+"DOL_Fault_Ind" : %Q0.2
+"DOL_Ready_Ind" : %Q0.3
+```
+
+## Alarm Tags
+| Tag Name | Data Type | Trigger Condition | Priority |
+|----------|-----------|-------------------|----------|
+| DOL_Overload_Alarm | BOOL | DI_DOL_Overload = TRUE | High |
+| DOL_Contactor_Fault | BOOL | Contactor output ON but feedback OFF | High |
+| DOL_Fault_Alarm | BOOL | General fault condition | Medium |
+| DOL_Start_Failure | BOOL | Start command but no running status | Low |
+
+## Data Block Tags (for HMI access)
+| Tag Name | Path | Data Type | Description |
+|----------|------|-----------|-------------|
+| DOL_Starter_1.Start_PB | "DOL_Starter_Instance".bStart_PB | BOOL | Start button status |
+| DOL_Starter_1.Stop_PB | "DOL_Starter_Instance".bStop_PB | BOOL | Stop button status |
+| DOL_Starter_1.Overload | "DOL_Starter_Instance".bOverload | BOOL | Overload status |
+| DOL_Starter_1.Contactor | "DOL_Starter_Instance".bContactor | BOOL | Contactor status |
+| DOL_Starter_1.Running | "DOL_Starter_Instance".bRunning_Ind | BOOL | Running status |
+| DOL_Starter_1.Fault | "DOL_Starter_Instance".bFault_Ind | BOOL | Fault status |
+| DOL_Starter_1.Ready | "DOL_Starter_Instance".bReady_Ind | BOOL | Ready status |
+
+## Address Allocation Notes
+- Inputs start at %I0.0 (first available digital input)
+- Outputs start at %Q0.0 (first available digital output)
+- Reserve addresses %I0.0-%I0.3 for DOL starter inputs
+- Reserve addresses %Q0.0-%Q0.3 for DOL starter outputs
+- Additional DOL starters can use %I1.0-%I1.3, %Q1.0-%Q1.3, etc.
+
+## Tag Export Settings
+When exporting tags for HMI:
+- Export format: CSV or XML
+- Include: Tag name, address, data type, comment
+- Symbolic names: Include for easier HMI development
+- Update mode: Manual (recommended for safety systems)
+
+## Safety Tag Configuration
+| Tag Name | Safety Class | Description |
+|----------|--------------|-------------|
+| DOL_Emergency_Stop | SIL 1 | Emergency stop (hardwired) |
+| DOL_Safety_Interlock | SIL 1 | Safety interlock (hardwired) |
+| DOL_Overload_Safety | SIL 1 | Overload protection (integrated) |
+
+## Testing Tags
+| Tag Name | Data Type | Usage |
+|----------|-----------|-------|
+| DOL_Test_Mode | BOOL | Enable test mode |
+| DOL_Test_Contactor | BOOL | Manual contactor test |
+| DOL_Reset_Fault | BOOL | Reset fault condition |

@@ -1,0 +1,149 @@
+# DOL (Direct-On-Line) Starter Ladder Logic
+
+## Overview
+This ladder logic implements a standard DOL starter for three-phase induction motor control with basic protection features.
+
+## Network 1: Main Control Circuit (Start/Stop with Latching)
+```
+      Start PB          Stop PB (NC)       Overload          Contactor
+|----[ ]--------------[ / ]-------------[ / ]-------------( )----|
+|        |
+|        |---------[ Auxiliary Contact ]----------------------|
+|                   (Normally Open)
+```
+
+## Network 2: Motor Status Indication
+```
+      Contactor Status          Running Indicator
+|----[ ]------------------------------------------( )----|
+```
+
+## Network 3: Fault Indication
+```
+      Overload Trip          Fault Indicator
+|----[ ]------------------------------------------( )----|
+```
+
+## Network 4: Ready Status
+```
+      Stop PB (NC)           Overload (NC)       Ready Indicator
+|----[ / ]------------------[ / ]-----------------( )----|
+```
+
+## Detailed Logic Description
+
+### Network 1: Main Control Circuit
+- **Start PB**: Normally Open push button (momentary contact)
+- **Stop PB**: Normally Closed push button (safety - opens on press)
+- **Overload**: Normally Closed contact from overload relay (opens on trip)
+- **Contactor**: Output coil that controls the main contactor
+- **Auxiliary Contact**: Latching contact from main contactor (NO)
+
+**Operation:**
+1. Pressing Start PB energizes the contactor coil
+2. Contactor closes and auxiliary contact provides latching
+3. Releasing Start PB maintains contactor through latching
+4. Pressing Stop PB breaks the circuit, de-energizing contactor
+5. Overload trip breaks the circuit for motor protection
+
+### Network 2: Motor Status Indication
+- **Contactor Status**: Feedback from auxiliary contact
+- **Running Indicator**: Output to HMI/panel indicator
+
+**Operation:**
+- Illuminates when motor is running
+- Provides visual confirmation of motor operation
+
+### Network 3: Fault Indication
+- **Overload Trip**: Normally Open contact from overload relay
+- **Fault Indicator**: Output to fault alarm/HMI
+
+**Operation:**
+- Activates when overload relay trips
+- Provides fault notification to operator
+
+### Network 4: Ready Status
+- **Stop PB (NC)**: Inverted stop button signal
+- **Overload (NC)**: Inverted overload signal
+- **Ready Indicator**: Output to ready status light/HMI
+
+**Operation:**
+- Illuminates when system is ready to start
+- Requires stop button not pressed and no overload condition
+
+## I/O Tag Assignment
+
+### Inputs
+| Tag Name | Address | Data Type | Description |
+|----------|---------|-----------|-------------|
+| DI_DOL_Start_PB | %I0.0 | BOOL | DOL Start push button |
+| DI_DOL_Stop_PB | %I0.1 | BOOL | DOL Stop push button |
+| DI_DOL_Overload | %I0.2 | BOOL | Overload relay contact |
+| DI_DOL_Aux_Contact | %I0.3 | BOOL | Contactor auxiliary feedback |
+
+### Outputs
+| Tag Name | Address | Data Type | Description |
+|----------|---------|-----------|-------------|
+| DQ_DOL_Contactor | %Q0.0 | BOOL | Contactor coil output |
+| DQ_DOL_Running_Ind | %Q0.1 | BOOL | Motor running indicator |
+| DQ_DOL_Fault_Ind | %Q0.2 | BOOL | Fault indicator |
+| DQ_DOL_Ready_Ind | %Q0.3 | BOOL | Ready status indicator |
+
+## Safety Features
+1. **Stop Button Priority**: Normally closed for fail-safe operation
+2. **Overload Protection**: Automatically trips on motor overload
+3. **Latching Safety**: Requires positive action to start motor
+4. **Status Indication**: Clear visual feedback of system state
+
+## Typical Applications
+- Small to medium power induction motors (up to 7.5 kW)
+- Pump drives
+- Fan controls
+- Conveyor systems
+- Compressor controls
+
+## Advantages
+- Simple and reliable
+- Low cost
+- Easy to troubleshoot
+- Minimal components
+- Direct-on-line starting (simplest starting method)
+
+## Limitations
+- High starting current (6-7 times rated current)
+- Mechanical stress during starting
+- Limited to applications where high starting current is acceptable
+- Not suitable for large motors or applications requiring soft start
+
+## Commissioning Checklist
+- [ ] Verify all wiring connections
+- [ ] Test emergency stop functionality
+- [ ] Verify overload relay setting
+- [ ] Check auxiliary contact operation
+- [ ] Test start/stop sequence
+- [ ] Verify indicator functionality
+- [ ] Document all settings
+- [ ] Perform load test
+
+## Troubleshooting Guide
+| Symptom | Possible Cause | Action |
+|---------|----------------|--------|
+| Motor won't start | Stop button pressed | Release stop button |
+| Motor won't start | Overload tripped | Reset overload, check motor |
+| Motor won't start | No control power | Check control circuit fuse |
+| Motor starts but won't latch | Auxiliary contact faulty | Replace contactor |
+| Contactor chattering | Low control voltage | Check control supply |
+| Frequent overload trips | Motor overloaded | Reduce load, check motor |
+
+## Standards Compliance
+- IEC 60204-1 (Safety of machinery)
+- IEC 60947 (Low-voltage switchgear)
+- NFPA 79 (Industrial Machinery)
+- Local electrical codes and regulations
+
+## Maintenance Requirements
+- Monthly: Check contactor contacts for wear
+- Monthly: Verify tightness of electrical connections
+- Quarterly: Test overload relay operation
+- Annually: Complete insulation resistance test
+- As needed: Replace worn contacts and components

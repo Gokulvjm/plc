@@ -1,0 +1,33 @@
+FUNCTION FC Example_Function : Void
+VAR_INPUT
+    // Input parameters
+    bEnable : BOOL;        // Enable signal
+    rSetpoint : REAL;      // Setpoint value
+END_VAR
+
+VAR_OUTPUT
+    // Output parameters
+    bDone : BOOL;          // Operation complete
+    rActual : REAL;        // Actual value
+END_VAR
+
+VAR
+    // Local variables
+    rError : REAL;        // Error calculation
+END_VAR
+
+BEGIN
+    // Function logic
+    IF bEnable THEN
+        rError := rSetpoint - rActual;
+        
+        // Simple control logic
+        IF ABS(rError) < 0.1 THEN
+            bDone := TRUE;
+        ELSE
+            bDone := FALSE;
+        END_IF;
+    ELSE
+        bDone := FALSE;
+    END_IF;
+END_FUNCTION

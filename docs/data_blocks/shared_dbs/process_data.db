@@ -1,0 +1,106 @@
+# Shared Data Block: Process_Data
+
+## Data Block Overview
+This shared data block contains global process variables used across multiple function blocks.
+
+## Structure Definition
+
+### Analog Inputs
+```scl
+STRUCT
+    // Temperature sensors
+    rTemp_Sensor_1 : REAL;    // Temperature sensor 1 (°C)
+    rTemp_Sensor_2 : REAL;    // Temperature sensor 2 (°C)
+    rTemp_Sensor_3 : REAL;    // Temperature sensor 3 (°C)
+    
+    // Pressure sensors
+    rPressure_Sensor_1 : REAL; // Pressure sensor 1 (bar)
+    rPressure_Sensor_2 : REAL; // Pressure sensor 2 (bar)
+    
+    // Flow sensors
+    rFlow_Sensor_1 : REAL;    // Flow sensor 1 (L/min)
+    rFlow_Sensor_2 : REAL;    // Flow sensor 2 (L/min)
+    
+    // Level sensors
+    rLevel_Sensor_1 : REAL;   // Level sensor 1 (%)
+    rLevel_Sensor_2 : REAL;   // Level sensor 2 (%)
+END_STRUCT
+```
+
+### Digital Inputs
+```scl
+STRUCT
+    // Limit switches
+    bLimitSwitch_1 : BOOL;    // Limit switch 1
+    bLimitSwitch_2 : BOOL;    // Limit switch 2
+    bLimitSwitch_3 : BOOL;    // Limit switch 3
+    
+    // Push buttons
+    bStart_PB : BOOL;         // Start push button
+    bStop_PB : BOOL;          // Stop push button
+    bReset_PB : BOOL;         // Reset push button
+    
+    // Selector switches
+    bAuto_Manual : BOOL;      // Auto/Manual selector
+    bLocal_Remote : BOOL;     // Local/Remote selector
+END_STRUCT
+```
+
+### Digital Outputs
+```scl
+STRUCT
+    // Motor controls
+    bMotor_1_Run : BOOL;      // Motor 1 run command
+    bMotor_2_Run : BOOL;      // Motor 2 run command
+    bMotor_3_Run : BOOL;      // Motor 3 run command
+    
+    // Valve controls
+    bValve_1_Open : BOOL;     // Valve 1 open command
+    bValve_2_Open : BOOL;     // Valve 2 open command
+    bValve_3_Open : BOOL;     // Valve 3 open command
+    
+    // Indicators
+    bRunning_Ind : BOOL;      // Running indicator
+    bFault_Ind : BOOL;        // Fault indicator
+    bWarning_Ind : BOOL;      // Warning indicator
+END_STRUCT
+```
+
+### Alarm Status
+```scl
+STRUCT
+    // Alarm flags
+    bHighTemp_Alarm : BOOL;   // High temperature alarm
+    bLowTemp_Alarm : BOOL;    // Low temperature alarm
+    bHighPressure_Alarm : BOOL; // High pressure alarm
+    bLowPressure_Alarm : BOOL; // Low pressure alarm
+    bHighLevel_Alarm : BOOL;  // High level alarm
+    bLowLevel_Alarm : BOOL;   // Low level alarm
+    
+    // Alarm timestamps
+    dtHighTemp_Time : DT;     // High temperature alarm time
+    dtLowTemp_Time : DT;      // Low temperature alarm time
+    dtHighPressure_Time : DT; // High pressure alarm time
+END_STRUCT
+```
+
+## Access Paths
+- DB: Process_Data
+- Symbolic name: "Process_Data"
+- Access: Read/Write from all blocks
+
+## Initial Values
+- All REAL variables: 0.0
+- All BOOL variables: FALSE
+- All DT variables: DT#1970-01-01-00:00:00
+
+## Data Block Size
+- Total size: Approximately 200 bytes
+- Optimize access: Yes
+- Retentive: No
+
+## Usage Notes
+- This data block is shared across all function blocks
+- Update cycle: Every PLC scan
+- Data consistency: Ensured by atomic access
+- Watchdog: Monitored for data integrity

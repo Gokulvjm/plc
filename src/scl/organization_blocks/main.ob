@@ -1,0 +1,23 @@
+ORGANIZATION_BLOCK OB Main
+VAR_TEMP
+    // Temporary variables
+    iLoopCounter : INT;     // Loop counter
+END_VAR
+
+BEGIN
+    // Main program cycle
+    // Initialize system
+    iLoopCounter := 0;
+    
+    // Call main control logic
+    // FC_System_Check();
+    // FB_Motor_Control_Instance();
+    // FC_Data_Logging();
+    
+    // System watchdog
+    iLoopCounter := iLoopCounter + 1;
+    
+    // Additional main program logic here
+    // Add your specific application code
+    
+END_ORGANIZATION_BLOCK

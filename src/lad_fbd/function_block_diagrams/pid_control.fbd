@@ -1,0 +1,65 @@
+# PID Control Function Block Diagram Documentation
+
+## Function Block: PID_Control
+
+### Inputs
+- **Enable**: BOOL - Enable PID control
+- **Setpoint**: REAL - Process setpoint
+- **ProcessValue**: REAL - Actual process value
+- **Manual**: BOOL - Manual mode
+- **ManualOutput**: REAL - Manual output value
+
+### Outputs
+- **Output**: REAL - Control output
+- **Error**: REAL - Error signal (Setpoint - ProcessValue)
+- **Active**: BOOL - PID active status
+
+### Parameters
+- **Kp**: REAL - Proportional gain
+- **Ki**: REAL - Integral gain
+- **Kd**: REAL - Derivative gain
+- **Ti**: REAL - Integral time
+- **Td**: REAL - Derivative time
+
+## Block Diagram Structure
+```
+          +-------+     +-------+     +-------+
+Setpoint ->| Error |---->|  P    |     |       |
+          +-------+     +-------+     |       |
+                                      |  Sum  |---> Output
+ProcessValue ->| Invert |------------>|       |
+               +--------+     +-------+|       |
+                              +-------+|       |
+                              |  I    |--------+
+                              +-------+
+                              +-------+
+                              |  D    |
+                              +-------+
+```
+
+## Description
+This PID controller implements standard proportional-integral-derivative control:
+- **P (Proportional)**: Responds to current error
+- **I (Integral)**: Eliminates steady-state error
+- **D (Derivative)**: Predicts future error based on rate of change
+
+## Application Notes
+- Tune Kp, Ki, Kd for specific process requirements
+- Use manual mode for maintenance or testing
+- Error signal calculated as: Error = Setpoint - ProcessValue
+- Output limited to 0-100% unless otherwise configured
+
+## Tags Used
+- PID_Enable: BOOL - PID enable signal
+- PID_Setpoint: REAL - Process setpoint
+- PID_ProcessValue: REAL - Process variable feedback
+- PID_Manual: BOOL - Manual mode select
+- PID_ManualOutput: REAL - Manual output value
+- PID_Output: REAL - Control output to actuator
+- PID_Error: REAL - Error signal
+- PID_Active: BOOL - PID active status
+- PID_Kp: REAL - Proportional gain
+- PID_Ki: REAL - Integral gain
+- PID_Kd: REAL - Derivative gain
+- PID_Ti: REAL - Integral time constant
+- PID_Td: REAL - Derivative time constant

@@ -1,0 +1,77 @@
+FUNCTION_BLOCK FB Motor_Control
+VAR_INPUT
+    // Motor control inputs
+    bStart : BOOL;         // Start command
+    bStop : BOOL;          // Stop command
+    bEmergency : BOOL;     // Emergency stop
+    bAutoMode : BOOL;      // Automatic mode
+    rSpeedSetpoint : REAL; // Speed setpoint (0-100%)
+END_VAR
+
+VAR_OUTPUT
+    // Motor control outputs
+    bRun : BOOL;           // Motor running
+    bFault : BOOL;         // Fault condition
+    rActualSpeed : REAL;   // Actual speed feedback
+    bReady : BOOL;         // Ready for operation
+END_VAR
+
+VAR
+    // Internal variables
+    tTimer : TON;          // Timer for startup
+    rCurrentSpeed : REAL;  // Internal speed variable
+    bFaultCondition : BOOL; // Internal fault flag
+END_VAR
+
+BEGIN
+    // Emergency stop handling
+    IF bEmergency THEN
+        bRun := FALSE;
+        bFault := TRUE;
+        rCurrentSpeed := 0.0;
+        rActualSpeed := 0.0;
+        bReady := FALSE;
+        RETURN;
+    END_IF;
+    
+    // Stop command handling
+    IF bStop THEN
+        bRun := FALSE;
+        rCurrentSpeed := 0.0;
+        rActualSpeed := 0.0;
+        bReady := TRUE;
+        RETURN;
+    END_IF;
+    
+    // Start command handling
+    IF bStart AND NOT bFault THEN
+        bRun := TRUE;
+        bReady := FALSE;
+        
+        // Speed control
+        IF bAutoMode THEN
+            // Automatic speed control
+            IF rCurrentSpeed < rSpeedSetpoint THEN
+                rCurrentSpeed := rCurrentSpeed + 1.0;
+            ELSIF rCurrentSpeed > rSpeedSetpoint THEN
+                rCurrentSpeed := rCurrentSpeed - 1.0;
+            END_IF;
+        ELSE
+            // Manual speed control
+            rCurrentSpeed := rSpeedSetpoint;
+        END_IF;
+        
+        rActualSpeed := rCurrentSpeed;
+        
+        // Check for fault conditions
+        IF rActualSpeed < 0.0 OR rActualSpeed > 100.0 THEN
+            bFault := TRUE;
+            bRun := FALSE;
+        END_IF;
+    ELSE
+        bRun := FALSE;
+        rCurrentSpeed := 0.0;
+        rActualSpeed := 0.0;
+        bReady := TRUE;
+    END_IF;
+END_FUNCTION_BLOCK

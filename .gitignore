@@ -1,0 +1,56 @@
+# TIA Portal Build Artifacts
+*.ap[0-9][0-9]
+*.al[0-9][0-9]
+*.as[0-9][0-9]
+*.b[0-9][0-9]
+*.db[0-9][0-9]
+*.fc[0-9][0-9]
+*.fb[0-9][0-9]
+*.ob[0-9][0-9]
+*.pdb
+*.log
+*.tmp
+*.temp
+
+# TIA Portal Project Files
+*.tzp
+*.s7p
+*.s7l
+*.zpf[0-9][0-9]
+*.zua[0-9][0-9]
+*.zui[0-9][0-9]
+
+# Backup Files
+*.bak
+*.backup
+*~
+
+# Compiled Files
+*.compiled
+*.obj
+*.o
+
+# Windows
+Thumbs.db
+desktop.ini
+$RECYCLE.BIN/
+
+# IDE Files
+.vs/
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Documentation
+*.pdf
+*.doc
+*.docx
+*.xls
+*.xlsx
+
+# Temporary Files
+temp/
+tmp/
+temporary/

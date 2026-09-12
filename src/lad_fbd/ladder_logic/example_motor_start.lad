@@ -1,0 +1,47 @@
+# Example Motor Start Ladder Logic Documentation
+
+## Network 1: Motor Start Circuit
+```
+|--[ Start PB ]--[ Stop PB ]--[ Motor Run ]--( Motor Output )--
+```
+
+## Network 2: Safety Interlock
+```
+|--[ Emergency Stop ]--[ Safety Relay ]--( Safety OK )--
+```
+
+## Network 3: Auto/Manual Mode
+```
+|--[ Auto Mode Selector ]--[ Auto Enable ]--( Auto Active )--
+|--[ Manual Mode Selector ]--[ Manual Enable ]--( Manual Active )--
+```
+
+## Network 4: Speed Control
+```
+|--[ Speed Reference ]--[ Speed Controller ]--( Speed Output )--
+```
+
+## Description
+This ladder logic documentation shows the basic motor control circuit including:
+- Start/Stop control with latching
+- Safety interlock with emergency stop
+- Auto/Manual mode selection
+- Speed control reference
+
+## Tags Used
+- Start_PB: BOOL - Start push button
+- Stop_PB: BOOL - Stop push button
+- Motor_Run: BOOL - Motor running status
+- Motor_Output: BOOL - Motor control output
+- Emergency_Stop: BOOL - Emergency stop input
+- Safety_Relay: BOOL - Safety relay status
+- Safety_OK: BOOL - Safety status output
+- Auto_Mode_Selector: BOOL - Auto mode selector
+- Auto_Enable: BOOL - Auto enable signal
+- Auto_Active: BOOL - Auto mode active
+- Manual_Mode_Selector: BOOL - Manual mode selector
+- Manual_Enable: BOOL - Manual enable signal
+- Manual_Active: BOOL - Manual mode active
+- Speed_Reference: REAL - Speed reference value
+- Speed_Controller: REAL - Speed controller output
+- Speed_Output: REAL - Speed output to drive

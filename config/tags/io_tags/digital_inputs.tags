@@ -1,0 +1,44 @@
+# Digital Input Tags Configuration
+
+## Module: DI_16x24VDC (Address: 0)
+| Tag Name | Address | Data Type | Description | Comment |
+|----------|---------|-----------|-------------|---------|
+| DI_Start_PB | %I0.0 | BOOL | Start push button | Main start button |
+| DI_Stop_PB | %I0.1 | BOOL | Stop push button | Main stop button |
+| DI_Emergency_Stop | %I0.2 | BOOL | Emergency stop | Safety emergency stop |
+| DI_Limit_Switch_1 | %I0.3 | BOOL | Limit switch 1 | Forward limit |
+| DI_Limit_Switch_2 | %I0.4 | BOOL | Limit switch 2 | Reverse limit |
+| DI_Sensor_1 | %I0.5 | BOOL | Proximity sensor 1 | Position detection |
+| DI_Sensor_2 | %I0.6 | BOOL | Proximity sensor 2 | Position detection |
+| DI_Auto_Manual | %I0.7 | BOOL | Auto/Manual selector | Mode selection |
+
+## Module: DI_16x24VDC (Address: 1)
+| Tag Name | Address | Data Type | Description | Comment |
+|----------|---------|-----------|-------------|---------|
+| DI_Local_Remote | %I1.0 | BOOL | Local/Remote selector | Control location |
+| DI_Reset_PB | %I1.1 | BOOL | Reset push button | Fault reset |
+| DI_Maintenance_Req | %I1.2 | BOOL | Maintenance request | Maintenance mode |
+| DI_Door_Switch | %I1.3 | BOOL | Door switch | Safety interlock |
+| DI_Pressure_Switch | %I1.4 | BOOL | Pressure switch | High pressure |
+| DI_Temperature_Switch | %I1.5 | BOOL | Temperature switch | High temperature |
+| DI_Level_Switch_High | %I1.6 | BOOL | Level switch high | High level |
+| DI_Level_Switch_Low | %I1.7 | BOOL | Level switch low | Low level |
+
+## Tag Naming Conventions
+- Digital inputs prefix: DI_
+- Descriptive names following IEC 61131-3 standards
+- Maximum tag name length: 24 characters
+- Use underscores instead of spaces
+- Avoid special characters except underscore
+
+## Address Assignment
+- Start address: %I0.0
+- Bit addressing: %I0.0 - %I0.7 (8 bits per byte)
+- Byte addressing: %IB0, %IB1, etc.
+- Word addressing: %IW0, %IW2, etc.
+
+## Access Rights
+- Read-only from PLC program
+- Accessible from HMI/SCADA
+- Logged in alarm system
+- Historical data retention: 30 days

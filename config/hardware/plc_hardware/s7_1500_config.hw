@@ -1,0 +1,102 @@
+# PLC Hardware Configuration - S7-1500
+
+## CPU Configuration
+**CPU Type**: S7-1516-3 PN/DP
+**Order Number**: 6ES7 516-3AN00-0AB0
+**Firmware Version**: V2.8
+**Memory**: 1 MB work memory, 5 MB load memory
+
+## Rack Configuration
+### Rack 0 (Main Rack)
+| Slot | Module | Order Number | Firmware | Status |
+|------|--------|--------------|----------|--------|
+| 0 | PS 307 5A | 6ES7 307-1EA00-0AA0 | - | Power Supply |
+| 1 | CPU 1516-3 PN/DP | 6ES7 516-3AN00-0AB0 | V2.8 | CPU |
+| 2 | SM 1231 AI 8x13bit | 6ES7 231-4HF32-0XB0 | V2.5 | Analog Input |
+| 3 | SM 1232 AO 4x13bit | 6ES7 232-4HB32-0XB0 | V2.5 | Analog Output |
+| 4 | SM 1231 DI 16x24VDC | 6ES7 231-4BH32-0XB0 | V2.5 | Digital Input |
+| 5 | SM 1232 DQ 16x24VDC | 6ES7 232-4HB32-0XB0 | V2.5 | Digital Output |
+| 6 | CM 1241 RS485 | 6ES7 241-1CH32-0XB0 | V2.5 | Communication |
+| 7 | Empty | - | - | Reserved |
+
+## Network Configuration
+### PROFINET Interface X1
+- **IP Address**: 192.168.0.10
+- **Subnet Mask**: 255.255.255.0
+- **Default Gateway**: 192.168.0.1
+- **PROFINET Device Name**: PLC_S7_1500
+- **Device ID**: 0x0000
+
+### MPI/DP Interface X2
+- **MPI Address**: 2
+- **DP Master**: Yes
+- **Baud Rate**: 12 Mbps
+- **Highest DP Address**: 126
+
+## System Addresses
+### Digital Inputs
+- **Start Address**: %I0.0
+- **Total Points**: 32
+- **Modules**: 2 x SM 1231 DI 16x24VDC
+
+### Digital Outputs
+- **Start Address**: %Q0.0
+- **Total Points**: 32
+- **Modules**: 2 x SM 1232 DQ 16x24VDC
+
+### Analog Inputs
+- **Start Address**: %IW256
+- **Total Channels**: 8
+- **Module**: SM 1231 AI 8x13bit
+- **Resolution**: 13 bit
+- **Signal Types**: 0-10V, 4-20mA
+
+### Analog Outputs
+- **Start Address**: %QW256
+- **Total Channels**: 4
+- **Module**: SM 1232 AO 4x13bit
+- **Resolution**: 13 bit
+- **Signal Types**: 0-10V, 4-20mA
+
+## Memory Configuration
+### Work Memory
+- **Code Memory**: 750 KB
+- **Data Memory**: 250 KB
+- **Retentive Memory**: 128 KB
+
+### Load Memory
+- **Internal**: 1 MB
+- **External (SIMATIC Card)**: 4 MB (optional)
+
+## CPU Properties
+### Cycle Time
+- **Minimum**: 1 ms
+- **Maximum**: 100 ms
+- **Current**: 15 ms (typical)
+
+### Watchdog
+- **Cycle Monitoring**: Enabled
+- **Cycle Time**: 5000 ms
+- **Call Monitoring**: Enabled
+
+### Time of Day
+- **Synchronization**: Enabled
+- **Interval**: 1 minute
+- **Time Zone**: UTC+5:30 (adjust as needed)
+
+### Interrupts
+- **Hardware Interrupts**: 256
+- **Diagnostic Interrupts**: 128
+- **Time-of-Day Interrupts**: 2
+
+## Safety Settings
+- **Safety Integrated**: Disabled (standard CPU)
+- **Access Level**: Full access (no protection)
+- **Know-how Protection**: Disabled
+- **Copy Protection**: Disabled
+
+## Backup and Restore
+- **Backup Frequency**: Weekly
+- **Backup Location**: SIMATIC Memory Card
+- **Auto Backup**: Enabled
+- **Restore on Power Loss**: Disabled (manual)

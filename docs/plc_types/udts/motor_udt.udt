@@ -1,0 +1,87 @@
+# User-Defined Type: Motor_UDT
+
+## Type Definition
+```scl
+TYPE Motor_UDT :
+STRUCT
+    // Motor identification
+    sMotorName : STRING[20];      // Motor name/description
+    iMotorID : INT;               // Motor identification number
+    
+    // Motor status
+    bRunning : BOOL;              // Motor running status
+    bFault : BOOL;                // Motor fault condition
+    bReady : BOOL;                // Motor ready for operation
+    bEnabled : BOOL;              // Motor enable status
+    
+    // Motor control
+    bStartCommand : BOOL;         // Start command
+    bStopCommand : BOOL;          // Stop command
+    bEmergencyStop : BOOL;        // Emergency stop status
+    
+    // Motor parameters
+    rRatedSpeed : REAL;           // Rated speed (RPM)
+    rActualSpeed : REAL;          // Actual speed (RPM)
+    rRatedCurrent : REAL;         // Rated current (A)
+    rActualCurrent : REAL;        // Actual current (A)
+    
+    // Motor protection
+    rThermalOverload : REAL;      // Thermal overload (%)
+    bOverloadTrip : BOOL;         // Overload trip status
+    rOperatingHours : REAL;       // Operating hours counter
+    
+    // Motor control mode
+    bAutoMode : BOOL;             // Automatic mode
+    bManualMode : BOOL;           // Manual mode
+    bLocalMode : BOOL;            // Local control mode
+    bRemoteMode : BOOL;           // Remote control mode
+    
+    // Feedback signals
+    bSpeedFeedback : BOOL;        // Speed feedback available
+    bCurrentFeedback : BOOL;      // Current feedback available
+    bTemperatureFeedback : BOOL;  // Temperature feedback available
+    
+    // Maintenance
+    bMaintenanceRequired : BOOL;  // Maintenance required flag
+    dtLastMaintenance : DT;       // Last maintenance date/time
+    iStartCount : DINT;           // Number of starts
+END_STRUCT
+END_TYPE
+```
+
+## Description
+This user-defined type provides a comprehensive structure for motor control and monitoring. It includes all necessary parameters for motor operation, protection, and maintenance tracking.
+
+## Usage Example
+```scl
+VAR
+    myMotor : Motor_UDT;          // Instance of motor type
+    conveyorMotor : Motor_UDT;    // Another motor instance
+END_VAR
+
+// Accessing motor parameters
+myMotor.bStartCommand := TRUE;
+myMotor.rActualSpeed := 1500.0;
+IF myMotor.bFault THEN
+    // Handle fault condition
+END_IF;
+```
+
+## Default Values
+- sMotorName: ""
+- iMotorID: 0
+- All BOOL: FALSE
+- All REAL: 0.0
+- dtLastMaintenance: DT#1970-01-01-00:00:00
+- iStartCount: 0
+
+## Memory Requirements
+- Total size: 87 bytes
+- Alignment: Byte-aligned
+- Optimize access: Yes
+
+## Application
+- Use for standardizing motor control across multiple motors
+- Enables consistent parameter naming and access
+- Simplifies motor management in complex systems
+- Supports motor fleet management

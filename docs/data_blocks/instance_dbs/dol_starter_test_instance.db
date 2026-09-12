@@ -1,0 +1,209 @@
+# Test Instance Data Block: DOL_Starter_Test_Instance
+
+## Data Block Overview
+This instance data block provides the memory and interface for the DOL_Starter_Test function block.
+
+## Instance Declaration
+```scl
+// In your main program or test organization block:
+VAR
+    // DOL Starter Test Instance
+    FB_DOL_Starter_Test : FB DOL_Starter_Test;
+END_VAR
+```
+
+## Memory Map
+| Variable | Offset | Type | Description |
+|----------|--------|------|-------------|
+| **Inputs** | | | |
+| bTest_Mode_Enable | +0 | BOOL | Enable test mode |
+| bTest_Start_PB | +0.1 | BOOL | Test start button simulation |
+| bTest_Stop_PB | +0.2 | BOOL | Test stop button simulation |
+| bTest_Overload | +0.3 | BOOL | Test overload simulation |
+| bTest_Contactor_FB | +0.4 | BOOL | Test contactor feedback simulation |
+| bManual_Contactor_Test | +0.5 | BOOL | Manual contactor test |
+| bReset_Test | +0.6 | BOOL | Reset test results |
+| **Outputs** | | | |
+| bSim_Start_PB | +2.0 | BOOL | Simulated start to DOL starter |
+| bSim_Stop_PB | +2.1 | BOOL | Simulated stop to DOL starter |
+| bSim_Overload | +2.2 | BOOL | Simulated overload to DOL starter |
+| bSim_Aux_Contact | +2.3 | BOOL | Simulated aux contact to DOL starter |
+| bTest_Mode_Active | +2.4 | BOOL | Test mode indicator |
+| bTest_Contactor_Out | +2.5 | BOOL | Manual test contactor output |
+| bRunning_Verified | +2.6 | BOOL | Running status verified |
+| bFault_Verified | +2.7 | BOOL | Fault status verified |
+| bReady_Verified | +2.8 | BOOL | Ready status verified |
+| bTest_Success | +2.9 | BOOL | Test passed indication |
+| bTest_Fail | +2.10 | BOOL | Test failed indication |
+| **IN_OUT Variables** | | | |
+| bDOL_Contactor | +4.0 | BOOL | DOL starter contactor output |
+| bDOL_Running_Ind | +4.1 | BOOL | DOL starter running indicator |
+| bDOL_Fault_Ind | +4.2 | BOOL | DOL starter fault indicator |
+| bDOL_Ready_Ind | +4.3 | BOOL | DOL starter ready indicator |
+| **Static Variables** | | | |
+| bTest_Result_Latch | +6.0 | BOOL | Test result latch |
+| bStart_Test_Pass | +6.1 | BOOL | Start test pass flag |
+| bStop_Test_Pass | +6.2 | BOOL | Stop test pass flag |
+| bOverload_Test_Pass | +6.3 | BOOL | Overload test pass flag |
+| bFeedback_Test_Pass | +6.4 | BOOL | Feedback test pass flag |
+| iTest_Counter | +8 | INT | Test counter |
+| tTest_Delay | +10.0 | TON | Test delay timer |
+
+## Total Memory Requirements
+- Input variables: 1 byte
+- Output variables: 2 bytes
+- IN_OUT variables: 1 byte
+- Static variables: 14 bytes
+- **Total: 18 bytes**
+
+## Usage Example
+```scl
+// In Test OB or Main OB:
+// Connect test inputs
+FB_DOL_Starter_Test.bTest_Mode_Enable := %I4.4;     // Test mode enable
+FB_DOL_Starter_Test.bTest_Start_PB := %I4.0;        // Test start PB
+FB_DOL_Starter_Test.bTest_Stop_PB := %I4.1;         // Test stop PB
+FB_DOL_Starter_Test.bTest_Overload := %I4.2;        // Test overload
+FB_DOL_Starter_Test.bTest_Contactor_FB := %I4.3;    // Test contactor FB
+FB_DOL_Starter_Test.bManual_Contactor_Test := %I4.5; // Manual test
+FB_DOL_Starter_Test.bReset_Test := %I4.6;            // Reset test
+
+// Connect to DOL starter outputs
+FB_DOL_Starter_Test.bDOL_Contactor := FB_DOL_Starter_1.bContactor;
+FB_DOL_Starter_Test.bDOL_Running_Ind := FB_DOL_Starter_1.bRunning_Ind;
+FB_DOL_Starter_Test.bDOL_Fault_Ind := FB_DOL_Starter_1.bFault_Ind;
+FB_DOL_Starter_Test.bDOL_Ready_Ind := FB_DOL_Starter_1.bReady_Ind;
+
+// Call the test function block
+FB_DOL_Starter_Test();
+
+// Connect simulated outputs to DOL starter inputs
+FB_DOL_Starter_1.bStart_PB := FB_DOL_Starter_Test.bSim_Start_PB;
+FB_DOL_Starter_1.bStop_PB := FB_DOL_Starter_Test.bSim_Stop_PB;
+FB_DOL_Starter_1.bOverload := FB_DOL_Starter_Test.bSim_Overload;
+FB_DOL_Starter_1.bAux_Contact := FB_DOL_Starter_Test.bSim_Aux_Contact;
+
+// Connect test outputs
+%Q4.0 := FB_DOL_Starter_Test.bSim_Start_PB;        // Simulated start
+%Q4.1 := FB_DOL_Starter_Test.bSim_Stop_PB;         // Simulated stop
+%Q4.2 := FB_DOL_Starter_Test.bSim_Overload;       // Simulated overload
+%Q4.3 := FB_DOL_Starter_Test.bSim_Aux_Contact;    // Simulated aux contact
+%Q4.4 := FB_DOL_Starter_Test.bTest_Mode_Active;   // Test mode indicator
+%Q4.5 := FB_DOL_Starter_Test.bTest_Contactor_Out; // Manual test output
+
+%Q5.0 := FB_DOL_Starter_Test.bRunning_Verified;   // Running verified
+%Q5.1 := FB_DOL_Starter_Test.bFault_Verified;     // Fault verified
+%Q5.2 := FB_DOL_Starter_Test.bReady_Verified;     // Ready verified
+%Q5.3 := FB_DOL_Starter_Test.bTest_Success;       // Test success
+%Q5.4 := FB_DOL_Starter_Test.bTest_Fail;          // Test fail
+```
+
+## TIA Portal Test Implementation Steps
+
+### 1. Create Test Function Block
+1. Open TIA Portal Project4
+2. Navigate to PLC → Program blocks
+3. Right-click → Add new block
+4. Select "Function block (FB)"
+5. Name: `DOL_Starter_Test`
+6. Number: FB2 (or next available)
+7. Language: SCL
+8. Copy the SCL code from `dol_starter_test.fb`
+
+### 2. Create Test Instance Data Block
+1. Right-click on Function blocks → Add new block
+2. Select "Data block (DB)"
+3. Name: `DOL_Starter_Test_Instance`
+4. Type: `FB DOL_Starter_Test`
+5. Number: DB2 (or next available)
+
+### 3. Configure Test Hardware I/O
+1. Open Hardware configuration
+2. Assign test digital inputs:
+   - %I4.0: Test start button
+   - %I4.1: Test stop button
+   - %I4.2: Test overload simulation
+   - %I4.3: Test contactor feedback
+   - %I4.4: Test mode enable
+   - %I4.5: Manual contactor test
+   - %I4.6: Reset test
+3. Assign test digital outputs:
+   - %Q4.0-%Q4.5: Simulated signals and indicators
+   - %Q5.0-%Q5.4: Test verification outputs
+
+### 4. Integrate Test with DOL Starter
+1. Open Main OB (OB1) or create test OB
+2. Add both function block calls
+3. Connect test FB to DOL starter FB as shown in usage example
+4. Ensure proper signal flow between blocks
+
+### 5. Test Configuration
+1. Compile the project
+2. Download to PLCSIM for testing
+3. Enable test mode
+4. Execute individual test procedures
+5. Monitor test verification outputs
+6. Document test results
+
+## Test Mode Operation
+
+### Normal Operation (Test Mode Disabled)
+- Test signals pass through to DOL starter
+- Simulated outputs disabled
+- Manual test outputs disabled
+- DOL starter operates normally with real I/O
+
+### Test Mode (Test Mode Enabled)
+- Real I/O disconnected from DOL starter
+- Test simulation signals active
+- Automated test sequences available
+- Manual testing capabilities enabled
+- Verification outputs monitor DOL starter behavior
+
+## Test Scenarios
+
+### Scenario 1: Automated Start Test
+1. Enable test mode
+2. Press test start button
+3. Monitor test success/fail outputs
+4. Verify running indicator activates
+5. Reset test for next scenario
+
+### Scenario 2: Automated Stop Test
+1. Enable test mode
+2. Start motor using test start
+3. Press test stop button
+4. Monitor test success/fail outputs
+5. Verify ready indicator activates
+6. Reset test for next scenario
+
+### Scenario 3: Manual Testing
+1. Enable test mode
+2. Use manual test inputs
+3. Manually verify each function
+4. Document results
+5. Reset test when complete
+
+## Safety During Testing
+- Test mode should have physical lockout
+- Emergency stop must remain functional
+- Ensure equipment is isolated during testing
+- Use test mode only in controlled environments
+- Never bypass safety interlocks for testing
+
+## Test Data Logging
+The test function block includes:
+- Test counter for tracking test executions
+- Individual test pass/fail flags
+- Overall test result latching
+- Verification status outputs
+
+These can be logged to a data block for traceability and quality control.
+
+## Integration with Quality Systems
+Test results can be:
+- Exported to quality management system
+- Used for production acceptance
+- Tracked for maintenance scheduling
+- Documented for regulatory compliance
+- Used for continuous improvement

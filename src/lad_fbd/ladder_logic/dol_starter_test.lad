@@ -1,0 +1,305 @@
+# DOL Starter Testing Ladder Logic
+
+## Overview
+This ladder logic provides test circuits and verification procedures for the DOL starter implementation in TIA Portal.
+
+## Test Network 1: Start Button Test
+```
+      Test_Start_PB          Simulated_Start_PB
+|----[ ]--------------------( )----|
+|        |
+|        |---------[ Test_Mode_Enable ]-------------------|
+```
+
+## Test Network 2: Stop Button Test
+```
+      Test_Stop_PB           Simulated_Stop_PB
+|----[ ]--------------------( )----|
+|        |
+|        |---------[ Test_Mode_Enable ]-------------------|
+```
+
+## Test Network 3: Overload Simulation Test
+```
+      Test_Overload_PB       Simulated_Overload
+|----[ ]--------------------( )----|
+|        |
+|        |---------[ Test_Mode_Enable ]-------------------|
+```
+
+## Test Network 4: Contactor Feedback Test
+```
+      Test_Contactor_FB      Simulated_Aux_Contact
+|----[ ]--------------------( )----|
+|        |
+|        |---------[ Test_Mode_Enable ]-------------------|
+```
+
+## Test Network 5: Test Mode Enable
+```
+      Test_Mode_Selector     Test_Mode_Active
+|----[ ]--------------------( )----|
+```
+
+## Test Network 6: Manual Contactor Test
+```
+      Manual_Contactor_Test  Test_Contactor_Output
+|----[ ]--------------------( )----|
+|        |
+|        |---------[ Test_Mode_Enable ]-------------------|
+```
+
+## Test Network 7: Status Verification - Running
+```
+      Contactor_Output       Aux_Contact        Running_Verified
+|----[ ]-------------------[ ]-----------------( )----|
+```
+
+## Test Network 8: Status Verification - Fault
+```
+      Overload_Active        Fault_Ind         Fault_Verified
+|----[ ]-------------------[ ]-----------------( )----|
+```
+
+## Test Network 9: Status Verification - Ready
+```
+      No_Stop                No_Overload        No_Contactor     Ready_Verified
+|----[ / ]-----------------[ / ]---------------[ / ]----------( )----|
+```
+
+## Test Network 10: Test Result Latching
+```
+      Test_Pass             Test_Success_Latch
+|----[ ]-------------------------( )----|
+|        |
+|        |---------[ Test_Result_Latch ]------------------|
+
+      Test_Fail             Test_Fail_Latch
+|----[ ]-------------------------( )----|
+|        |
+|        |---------[ Test_Result_Latch ]------------------|
+```
+
+## Detailed Test Procedures
+
+### Test 1: Start Button Functionality
+**Objective:** Verify start button initiates motor start sequence
+
+**Procedure:**
+1. Enable test mode
+2. Simulate start button press
+3. Verify contactor output activates
+4. Verify running indicator illuminates
+5. Verify ready indicator extinguishes
+6. Release start button
+7. Verify contactor remains latched
+
+**Expected Results:**
+- Contact output: ON
+- Running indicator: ON
+- Ready indicator: OFF
+- Latching maintained after button release
+
+### Test 2: Stop Button Functionality
+**Objective:** Verify stop button stops motor and resets system
+
+**Procedure:**
+1. Start motor (ensure running)
+2. Simulate stop button press
+3. Verify contactor output deactivates
+4. Verify running indicator extinguishes
+5. Verify ready indicator illuminates
+6. Release stop button
+7. Verify system remains in ready state
+
+**Expected Results:**
+- Contactor output: OFF
+- Running indicator: OFF
+- Ready indicator: ON
+- System in ready state
+
+### Test 3: Overload Protection
+**Objective:** Verify overload protection trips motor
+
+**Procedure:**
+1. Start motor (ensure running)
+2. Simulate overload condition
+3. Verify contactor output deactivates immediately
+4. Verify fault indicator illuminates
+5. Verify running indicator extinguishes
+6. Attempt to restart motor (should fail)
+7. Clear overload condition
+8. Reset fault condition
+9. Verify system returns to ready state
+
+**Expected Results:**
+- Immediate contactor deactivation
+- Fault indicator: ON
+- Motor cannot restart until reset
+- System returns to ready after reset
+
+### Test 4: Contactor Feedback Monitoring
+**Objective:** Verify contactor feedback monitoring detects faults
+
+**Procedure:**
+1. Enable test mode
+2. Start motor (ensure running)
+3. Simulate loss of contactor feedback
+4. Verify fault detection activates
+5. Verify contactor output deactivates
+6. Restore contactor feedback
+7. Reset fault condition
+8. Verify system returns to ready state
+
+**Expected Results:**
+- Fault detection activates after delay
+- Contactor output deactivates
+- System cannot restart until reset
+
+### Test 5: Status Indication Verification
+**Objective:** Verify all status indicators function correctly
+
+**Procedure:**
+1. Test each status indicator individually
+2. Verify running indicator only ON when motor running
+3. Verify fault indicator only ON when fault condition exists
+4. Verify ready indicator only ON when system ready to start
+5. Verify indicators don't conflict
+
+**Expected Results:**
+- Each indicator operates independently
+- No conflicting indicator states
+- Indicators reflect actual system state
+
+### Test 6: Latching Functionality
+**Objective:** Verify start button latching works correctly
+
+**Procedure:**
+1. Press and release start button quickly
+2. Verify motor continues running
+3. Verify contactor remains latched
+4. Test multiple start button presses
+5. Verify no chatter or multiple starts
+
+**Expected Results:**
+- Single press maintains operation
+- No multiple starts from repeated presses
+- Stable latching operation
+
+### Test 7: Emergency Stop Integration
+**Objective:** Verify emergency stop functionality (if integrated)
+
+**Procedure:**
+1. Start motor
+2. Activate emergency stop
+3. Verify immediate motor stop
+4. Verify fault indication
+5. Reset emergency stop
+6. Reset fault condition
+7. Verify system returns to safe state
+
+**Expected Results:**
+- Immediate motor stop
+- Fault indication
+- Cannot restart until reset
+
+## Test I/O Configuration
+
+### Test Inputs
+| Tag Name | Address | Data Type | Description |
+|----------|---------|-----------|-------------|
+| Test_Start_PB | %I4.0 | BOOL | Test start button simulation |
+| Test_Stop_PB | %I4.1 | BOOL | Test stop button simulation |
+| Test_Overload_PB | %I4.2 | BOOL | Test overload simulation |
+| Test_Contactor_FB | %I4.3 | BOOL | Test contactor feedback simulation |
+| Test_Mode_Selector | %I4.4 | BOOL | Test mode enable selector |
+| Manual_Contactor_Test | %I4.5 | BOOL | Manual contactor test |
+
+### Test Outputs
+| Tag Name | Address | Data Type | Description |
+|----------|---------|-----------|-------------|
+| Simulated_Start_PB | %Q4.0 | BOOL | Simulated start to DOL starter |
+| Simulated_Stop_PB | %Q4.1 | BOOL | Simulated stop to DOL starter |
+| Simulated_Overload | %Q4.2 | BOOL | Simulated overload to DOL starter |
+| Simulated_Aux_Contact | %Q4.3 | BOOL | Simulated aux contact to DOL starter |
+| Test_Mode_Active | %Q4.4 | BOOL | Test mode indicator |
+| Test_Contactor_Output | %Q4.5 | BOOL | Manual test contactor output |
+
+### Test Status Outputs
+| Tag Name | Address | Data Type | Description |
+|----------|---------|-----------|-------------|
+| Running_Verified | %Q5.0 | BOOL | Running status verified |
+| Fault_Verified | %Q5.1 | BOOL | Fault status verified |
+| Ready_Verified | %Q5.2 | BOOL | Ready status verified |
+| Test_Success_Latch | %Q5.3 | BOOL | Test passed indication |
+| Test_Fail_Latch | %Q5.4 | BOOL | Test failed indication |
+
+## Test Timing Requirements
+- Start button response: < 100ms
+- Stop button response: < 50ms
+- Overload response: < 50ms
+- Contactor feedback timeout: 500ms
+- Status indication response: < 100ms
+
+## Test Sequence Order
+1. Power-up test
+2. Status indication test
+3. Start button test
+4. Stop button test
+5. Latching test
+6. Overload protection test
+7. Contactor feedback test
+8. Integration test
+9. Documentation and results
+
+## Pass/Fail Criteria
+- **Pass:** All test procedures meet expected results
+- **Fail:** Any test procedure does not meet expected results
+- **Conditional:** Test passes with minor deviations documented
+
+## Test Documentation
+- Record test date and time
+- Document test personnel
+- Note any deviations from expected results
+- Record software/firmware versions
+- Document hardware configuration
+- Save test results for traceability
+
+## Safety Considerations During Testing
+- Ensure emergency stop is functional
+- Verify all safety interlocks are active
+- Use test mode to prevent unexpected equipment operation
+- Have personnel clear of equipment during testing
+- Follow lockout/tagout procedures when required
+- Test in controlled environment before field deployment
+
+## Troubleshooting Test Failures
+| Symptom | Possible Cause | Action |
+|---------|----------------|--------|
+| Motor won't start in test | Test mode not enabled | Enable test mode |
+| Contactor feedback test fails | Wiring issue | Check aux contact wiring |
+| Overload test doesn't trip | Overload setting incorrect | Adjust overload setting |
+| Status indicators incorrect | Logic error | Review SCL implementation |
+| Latching doesn't work | Contact fault | Check contactor contact |
+
+## Test Report Template
+```
+DOL Starter Test Report
+Date: ____________
+Tester: ____________
+Software Version: ____________
+Hardware Configuration: ____________
+
+Test Results:
+[ ] Test 1: Start Button - Pass/Fail
+[ ] Test 2: Stop Button - Pass/Fail
+[ ] Test 3: Overload Protection - Pass/Fail
+[ ] Test 4: Contactor Feedback - Pass/Fail
+[ ] Test 5: Status Indication - Pass/Fail
+[ ] Test 6: Latching Functionality - Pass/Fail
+[ ] Test 7: Emergency Stop - Pass/Fail
+
+Overall Result: Pass/Fail/Conditional
+
+Comments: ___________________________
+```

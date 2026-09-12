@@ -1,0 +1,163 @@
+# DOL Starter Test I/O Tags Configuration
+
+## Test Digital Inputs (Module: DI_16x24VDC, Address: 4)
+| Tag Name | Address | Data Type | Description | Comment |
+|----------|---------|-----------|-------------|---------|
+| DI_Test_Start_PB | %I4.0 | BOOL | Test start button simulation | Test input |
+| DI_Test_Stop_PB | %I4.1 | BOOL | Test stop button simulation | Test input |
+| DI_Test_Overload | %I4.2 | BOOL | Test overload simulation | Test input |
+| DI_Test_Contactor_FB | %I4.3 | BOOL | Test contactor feedback simulation | Test input |
+| DI_Test_Mode_Enable | %I4.4 | BOOL | Test mode enable selector | Mode select |
+| DI_Manual_Contactor_Test | %I4.5 | BOOL | Manual contactor test | Manual test |
+| DI_Reset_Test | %I4.6 | BOOL | Reset test results | Test reset |
+
+## Test Digital Outputs (Module: DQ_16x24VDC, Address: 4)
+| Tag Name | Address | Data Type | Description | Comment |
+|----------|---------|-----------|-------------|---------|
+| DQ_Sim_Start_PB | %Q4.0 | BOOL | Simulated start to DOL starter | Test output |
+| DQ_Sim_Stop_PB | %Q4.1 | BOOL | Simulated stop to DOL starter | Test output |
+| DQ_Sim_Overload | %Q4.2 | BOOL | Simulated overload to DOL starter | Test output |
+| DQ_Sim_Aux_Contact | %Q4.3 | BOOL | Simulated aux contact to DOL starter | Test output |
+| DQ_Test_Mode_Active | %Q4.4 | BOOL | Test mode indicator | Status indicator |
+| DQ_Test_Contactor_Out | %Q4.5 | BOOL | Manual test contactor output | Test output |
+
+## Test Verification Outputs (Module: DQ_16x24VDC, Address: 5)
+| Tag Name | Address | Data Type | Description | Comment |
+|----------|---------|-----------|-------------|---------|
+| DQ_Running_Verified | %Q5.0 | BOOL | Running status verified | Test result |
+| DQ_Fault_Verified | %Q5.1 | BOOL | Fault status verified | Test result |
+| DQ_Ready_Verified | %Q5.2 | BOOL | Ready status verified | Test result |
+| DQ_Test_Success | %Q5.3 | BOOL | Test passed indication | Test result |
+| DQ_Test_Fail | %Q5.4 | BOOL | Test failed indication | Test result |
+
+## HMI Test Tags
+| Tag Name | Data Type | Description | Access |
+|----------|-----------|-------------|--------|
+| Test_Enable | BOOL | Enable test mode from HMI | Read/Write |
+| Test_Start_Command | BOOL | HMI test start button | Read/Write |
+| Test_Stop_Command | BOOL | HMI test stop button | Read/Write |
+| Test_Overload_Command | BOOL | HMI test overload simulation | Read/Write |
+| Test_Contactor_FB_Command | BOOL | HMI test contactor feedback | Read/Write |
+| Test_Reset_Command | BOOL | HMI reset test results | Read/Write |
+| Test_Mode_Status | BOOL | Test mode active status | Read Only |
+| Test_Pass_Status | BOOL | Test passed status | Read Only |
+| Test_Fail_Status | BOOL | Test failed status | Read Only |
+| Test_Counter | INT | Test execution counter | Read Only |
+
+## Test Data Block Tags (for HMI access)
+| Tag Name | Path | Data Type | Description |
+|----------|------|-----------|-------------|
+| Test_1.Start_Test | "DOL_Starter_Test_Instance".bStart_Test_Pass | BOOL | Start test pass |
+| Test_1.Stop_Test | "DOL_Starter_Test_Instance".bStop_Test_Pass | BOOL | Stop test pass |
+| Test_1.Overload_Test | "DOL_Starter_Test_Instance".bOverload_Test_Pass | BOOL | Overload test pass |
+| Test_1.Feedback_Test | "DOL_Starter_Test_Instance".bFeedback_Test_Pass | BOOL | Feedback test pass |
+| Test_1.Counter | "DOL_Starter_Test_Instance".iTest_Counter | INT | Test counter |
+| Test_1.Result_Latch | "DOL_Starter_Test_Instance".bTest_Result_Latch | BOOL | Test result latch |
+
+## Test Alarm Tags
+| Tag Name | Data Type | Trigger Condition | Priority |
+|----------|-----------|-------------------|----------|
+| Test_Start_Fail | BOOL | Start test failed | Medium |
+| Test_Stop_Fail | BOOL | Stop test failed | Medium |
+| Test_Overload_Fail | BOOL | Overload test failed | High |
+| Test_Feedback_Fail | BOOL | Feedback test failed | High |
+| Test_Timeout | BOOL | Test execution timeout | High |
+
+## Test Monitoring Tags
+| Tag Name | Data Type | Description | Update Rate |
+|----------|-----------|-------------|-------------|
+| Test_Cycle_Time | TIME | Test execution cycle time | 100ms |
+| Test_Last_Execution | DT | Last test execution timestamp | On change |
+| Test_Duration | TIME | Total test duration | On change |
+| Test_Success_Rate | REAL | Test success percentage | On change |
+
+## Symbolic Names (TIA Portal)
+### Test Input Symbols
+```
+"Test_Start_PB" : %I4.0
+"Test_Stop_PB" : %I4.1
+"Test_Overload" : %I4.2
+"Test_Contactor_FB" : %I4.3
+"Test_Mode_Enable" : %I4.4
+"Manual_Contactor_Test" : %I4.5
+"Reset_Test" : %I4.6
+```
+
+### Test Output Symbols
+```
+"Sim_Start_PB" : %Q4.0
+"Sim_Stop_PB" : %Q4.1
+"Sim_Overload" : %Q4.2
+"Sim_Aux_Contact" : %Q4.3
+"Test_Mode_Active" : %Q4.4
+"Test_Contactor_Out" : %Q4.5
+```
+
+### Test Verification Symbols
+```
+"Running_Verified" : %Q5.0
+"Fault_Verified" : %Q5.1
+"Ready_Verified" : %Q5.2
+"Test_Success" : %Q5.3
+"Test_Fail" : %Q5.4
+```
+
+## Address Allocation Notes
+- Test inputs start at %I4.0 (after main DOL starter inputs)
+- Test outputs start at %Q4.0 (after main DOL starter outputs)
+- Verification outputs at %Q5.0
+- Reserve addresses %I4.0-%I4.6 for test inputs
+- Reserve addresses %Q4.0-%Q4.5 for test outputs
+- Reserve addresses %Q5.0-%Q5.4 for verification outputs
+
+## Test Mode Security Tags
+| Tag Name | Data Type | Description | Security Level |
+|----------|-----------|-------------|----------------|
+| Test_Authorization | BOOL | Test mode authorization required | High |
+| Test_Password_Valid | BOOL | Test password validation | High |
+| Test_User_Level | INT | Test user access level | High |
+| Test_Audit_Log | STRING[100] | Test audit log entry | Medium |
+
+## Test Configuration Tags
+| Tag Name | Data Type | Description | Default Value |
+|----------|-----------|-------------|---------------|
+| Test_Auto_Mode | BOOL | Enable automated test sequence | FALSE |
+| Test_Loop_Mode | BOOL | Enable continuous test loop | FALSE |
+| Test_Delay_Time | TIME | Delay between test steps | T#1S |
+| Test_Retry_Count | INT | Number of test retries | 3 |
+| Test_Timeout_Value | TIME | Test execution timeout | T#10S |
+
+## Test Documentation Tags
+| Tag Name | Data Type | Description |
+|----------|-----------|-------------|
+| Test_Procedure_Name | STRING[50] | Current test procedure name |
+| Test_Step_Number | INT | Current test step number |
+| Test_Step_Description | STRING[100] | Current test step description |
+| Test_Expected_Result | STRING[100] | Expected test result |
+| Test_Actual_Result | STRING[100] | Actual test result |
+| Test_Comments | STRING[200] | Test comments and notes |
+
+## Testing Safety Tags
+| Tag Name | Data Type | Description |
+|----------|-----------|-------------|
+| Test_Emergency_Stop_Override | BOOL | Emergency stop override (for testing only) |
+| Test_Safety_Interlock_Bypass | BOOL | Safety interlock bypass (for testing only) |
+| Test_Equipment_Isolated | BOOL | Equipment isolation status |
+| Test_Personnel_Clear | BOOL | Personnel clear confirmation |
+
+## Data Logging Tags
+| Tag Name | Data Type | Description |
+|----------|-----------|-------------|
+| Test_Results_Log | ARRAY[1..100] OF STRUCT | Test results log array |
+| Test_Timestamp_Log | ARRAY[1..100] OF DT | Test timestamp log |
+| Test_Operator_Log | ARRAY[1..100] OF STRING[20] | Test operator log |
+| Test_Result_Index | INT | Current log index |
+
+## Test Quality Metrics
+| Tag Name | Data Type | Description |
+|----------|-----------|-------------|
+| Test_Total_Executions | DINT | Total test executions |
+| Test_Total_Passes | DINT | Total test passes |
+| Test_Total_Fails | DINT | Total test failures |
+| Test_Pass_Percentage | REAL | Pass percentage |
+| Test_Mean_Time_Between_Failures | TIME | MTBF calculation |

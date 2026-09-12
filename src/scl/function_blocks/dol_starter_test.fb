@@ -1,0 +1,180 @@
+FUNCTION_BLOCK FB DOL_Starter_Test
+VAR_INPUT
+    // Test control inputs
+    bTest_Mode_Enable : BOOL;     // Enable test mode
+    bTest_Start_PB : BOOL;        // Test start button simulation
+    bTest_Stop_PB : BOOL;         // Test stop button simulation
+    bTest_Overload : BOOL;        // Test overload simulation
+    bTest_Contactor_FB : BOOL;    // Test contactor feedback simulation
+    bManual_Contactor_Test : BOOL; // Manual contactor test
+    bReset_Test : BOOL;           // Reset test results
+END_VAR
+
+VAR_OUTPUT
+    // Simulated outputs to DOL starter
+    bSim_Start_PB : BOOL;         // Simulated start to DOL starter
+    bSim_Stop_PB : BOOL;          // Simulated stop to DOL starter
+    bSim_Overload : BOOL;         // Simulated overload to DOL starter
+    bSim_Aux_Contact : BOOL;      // Simulated aux contact to DOL starter
+    bTest_Mode_Active : BOOL;     // Test mode indicator
+    bTest_Contactor_Out : BOOL;   // Manual test contactor output
+    
+    // Test verification outputs
+    bRunning_Verified : BOOL;     // Running status verified
+    bFault_Verified : BOOL;       // Fault status verified
+    bReady_Verified : BOOL;       // Ready status verified
+    bTest_Success : BOOL;         // Test passed indication
+    bTest_Fail : BOOL;            // Test failed indication
+END_VAR
+
+VAR_IN_OUT
+    // Connection to DOL starter
+    bDOL_Contactor : BOOL;        // DOL starter contactor output
+    bDOL_Running_Ind : BOOL;      // DOL starter running indicator
+    bDOL_Fault_Ind : BOOL;        // DOL starter fault indicator
+    bDOL_Ready_Ind : BOOL;        // DOL starter ready indicator
+END_VAR
+
+VAR
+    // Internal test variables
+    bTest_Result_Latch : BOOL;    // Test result latch
+    bStart_Test_Pass : BOOL;       // Start test pass flag
+    bStop_Test_Pass : BOOL;        // Stop test pass flag
+    bOverload_Test_Pass : BOOL;    // Overload test pass flag
+    bFeedback_Test_Pass : BOOL;   // Feedback test pass flag
+    iTest_Counter : INT;           // Test counter
+    tTest_Delay : TON;             // Test delay timer
+END_VAR
+
+BEGIN
+    // ==========================================
+    // Test Mode Control
+    // ==========================================
+    
+    bTest_Mode_Active := bTest_Mode_Enable;
+    
+    // Reset test results
+    IF bReset_Test THEN
+        bTest_Result_Latch := FALSE;
+        bTest_Success := FALSE;
+        bTest_Fail := FALSE;
+        bStart_Test_Pass := FALSE;
+        bStop_Test_Pass := FALSE;
+        bOverload_Test_Pass := FALSE;
+        bFeedback_Test_Pass := FALSE;
+        iTest_Counter := 0;
+    END_IF;
+    
+    // ==========================================
+    // Signal Simulation (when test mode enabled)
+    // ==========================================
+    
+    IF bTest_Mode_Enable THEN
+        // Simulate inputs to DOL starter
+        bSim_Start_PB := bTest_Start_PB;
+        bSim_Stop_PB := bTest_Stop_PB;
+        bSim_Overload := bTest_Overload;
+        bSim_Aux_Contact := bTest_Contactor_FB OR bDOL_Contactor;
+        
+        // Manual contactor test
+        bTest_Contactor_Out := bManual_Contactor_Test;
+    ELSE
+        // Pass through real signals when not in test mode
+        bSim_Start_PB := FALSE;  // Disable simulation
+        bSim_Stop_PB := FALSE;
+        bSim_Overload := FALSE;
+        bSim_Aux_Contact := bDOL_Contactor;
+        bTest_Contactor_Out := FALSE;
+    END_IF;
+    
+    // ==========================================
+    // Test Verification Logic
+    // ==========================================
+    
+    // Running status verification
+    // Contact output ON and running indicator ON = verified
+    bRunning_Verified := bDOL_Contactor AND bDOL_Running_Ind;
+    
+    // Fault status verification
+    // Fault indicator ON or overload active = verified
+    bFault_Verified := bDOL_Fault_Ind OR bSim_Overload;
+    
+    // Ready status verification
+    // No stop, no overload, no contactor = ready
+    bReady_Verified := NOT bSim_Stop_PB AND NOT bSim_Overload AND NOT bDOL_Contactor;
+    
+    // ==========================================
+    // Automated Test Sequences
+    // ==========================================
+    
+    // Test 1: Start Button Test
+    IF bTest_Start_PB AND NOT bStart_Test_Pass AND bTest_Mode_Enable THEN
+        tTest_Delay(IN := TRUE, PT := T#500MS);
+        IF tTest_Delay.Q AND bDOL_Contactor AND bDOL_Running_Ind THEN
+            bStart_Test_Pass := TRUE;
+            iTest_Counter := iTest_Counter + 1;
+        END_IF;
+    ELSE
+        tTest_Delay(IN := FALSE);
+    END_IF;
+    
+    // Test 2: Stop Button Test
+    IF bTest_Stop_PB AND NOT bStop_Test_Pass AND bTest_Mode_Enable THEN
+        tTest_Delay(IN := TRUE, PT := T#500MS);
+        IF tTest_Delay.Q AND NOT bDOL_Contactor AND NOT bDOL_Running_Ind AND bDOL_Ready_Ind THEN
+            bStop_Test_Pass := TRUE;
+            iTest_Counter := iTest_Counter + 1;
+        END_IF;
+    ELSE
+        tTest_Delay(IN := FALSE);
+    END_IF;
+    
+    // Test 3: Overload Test
+    IF bTest_Overload AND NOT bOverload_Test_Pass AND bTest_Mode_Enable THEN
+        tTest_Delay(IN := TRUE, PT := T#500MS);
+        IF tTest_Delay.Q AND NOT bDOL_Contactor AND bDOL_Fault_Ind THEN
+            bOverload_Test_Pass := TRUE;
+            iTest_Counter := iTest_Counter + 1;
+        END_IF;
+    ELSE
+        tTest_Delay(IN := FALSE);
+    END_IF;
+    
+    // Test 4: Contactor Feedback Test
+    IF bTest_Contactor_FB AND NOT bFeedback_Test_Pass AND bTest_Mode_Enable THEN
+        tTest_Delay(IN := TRUE, PT := T#1S);
+        IF tTest_Delay.Q AND bDOL_Fault_Ind THEN
+            bFeedback_Test_Pass := TRUE;
+            iTest_Counter := iTest_Counter + 1;
+        END_IF;
+    ELSE
+        tTest_Delay(IN := FALSE);
+    END_IF;
+    
+    // ==========================================
+    // Test Result Evaluation
+    // ==========================================
+    
+    // Overall test result
+    IF bStart_Test_Pass AND bStop_Test_Pass AND bOverload_Test_Pass AND bFeedback_Test_Pass THEN
+        bTest_Success := TRUE;
+        bTest_Fail := FALSE;
+        bTest_Result_Latch := TRUE;
+    ELSIF (bTest_Start_PB OR bTest_Stop_PB OR bTest_Overload OR bTest_Contactor_FB) AND 
+           NOT (bStart_Test_Pass AND bStop_Test_Pass AND bOverload_Test_Pass AND bFeedback_Test_Pass) THEN
+        // Individual test failures
+        IF NOT bStart_Test_Pass AND bTest_Start_PB THEN
+            bTest_Fail := TRUE;
+        END_IF;
+        IF NOT bStop_Test_Pass AND bTest_Stop_PB THEN
+            bTest_Fail := TRUE;
+        END_IF;
+        IF NOT bOverload_Test_Pass AND bTest_Overload THEN
+            bTest_Fail := TRUE;
+        END_IF;
+        IF NOT bFeedback_Test_Pass AND bTest_Contactor_FB THEN
+            bTest_Fail := TRUE;
+        END_IF;
+    END_IF;
+    
+END_FUNCTION_BLOCK
